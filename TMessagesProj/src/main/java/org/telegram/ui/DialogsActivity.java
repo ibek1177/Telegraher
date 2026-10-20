@@ -9574,6 +9574,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         }
 
         getMessagesController().markMentionsAsRead(did, 0);
+        com.ibek.ghost.Ghost.allowRead(did);
         getMessagesController().markDialogAsRead(did, dialog.top_message, dialog.top_message, dialog.last_message_date, false, 0, 0, true, 0);
 
         if (selectedDialogIndex >= 0) {
@@ -9600,6 +9601,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                 getMessagesController().markAllTopicsAsRead(did);
             }
             getMessagesController().markMentionsAsRead(did, 0);
+            com.ibek.ghost.Ghost.allowRead(did);
             getMessagesController().markDialogAsRead(did, dialog.top_message, dialog.top_message, dialog.last_message_date, false, 0, 0, true, 0);
         }
         if (selectedDialogIndex >= 0) {
