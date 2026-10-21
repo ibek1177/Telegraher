@@ -1237,6 +1237,7 @@ public class ChatActivity extends BaseFragment implements
     public final static int OPTION_SUGGESTION_ADD_OFFER = 114;
 
     public final static int OPTION_VIEW_STATISTICS = 115;
+    public final static int OPTION_GHOST_EDIT_HISTORY = 900;
 
     private final static int[] allowedNotificationsDuringChatListAnimations = new int[]{
             NotificationCenter.messagesRead,
@@ -30821,6 +30822,13 @@ public class ChatActivity extends BaseFragment implements
                 icons.add(R.drawable.msg_download);
             }
 
+            if (com.ibek.ghost.Ghost.editHistory && selectedObject != null && selectedObject.messageOwner != null
+                    && (selectedObject.messageOwner.flags & TLRPC.MESSAGE_FLAG_EDITED) != 0 && !options.contains(OPTION_GHOST_EDIT_HISTORY)) {
+                items.add(LocaleController.getString(R.string.GhostEditHistoryMenu));
+                options.add(OPTION_GHOST_EDIT_HISTORY);
+                icons.add(R.drawable.msg_recent);
+            }
+
             if (options.isEmpty() && optionsView == null) {
                 return false;
             }
@@ -33047,6 +33055,10 @@ public class ChatActivity extends BaseFragment implements
         }
         boolean preserveDim = false;
         switch (option) {
+            case OPTION_GHOST_EDIT_HISTORY: {
+                com.ibek.ghost.EditHistoryDialog.show(this, selectedObject);
+                break;
+            }
             case OPTION_RETRY: {
                 final MessageObject object = selectedObject;
                 final MessageObject.GroupedMessages group = selectedObjectGroup;

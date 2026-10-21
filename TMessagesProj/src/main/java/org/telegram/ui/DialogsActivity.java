@@ -3260,7 +3260,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             doneItem.setText(LocaleController.getString(R.string.Done).toUpperCase());
             actionBar.addView(doneItem, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.TOP | Gravity.RIGHT, 0, 0, 10, 0));
             doneItem.setOnClickListener(v -> {
-                filterTabsView.setIsEditing(false);
+                ghostSetTabsEditing(false);
                 showDoneItem(false);
             });
             doneItem.setAlpha(0.0f);
@@ -3565,7 +3565,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                         } catch (Exception ignore) {}
                         topBulletin = BulletinFactory.of(DialogsActivity.this).createSimpleBulletin(R.raw.filter_reorder, AndroidUtilities.replaceTags(LocaleController.formatString(R.string.LimitReachedReorderFolder, LocaleController.getString(R.string.FilterAllChats))), LocaleController.getString(R.string.PremiumMore), Bulletin.DURATION_PROLONG, () -> {
                             showDialog(new PremiumFeatureBottomSheet(DialogsActivity.this, PremiumPreviewFragment.PREMIUM_FEATURE_ADVANCED_CHAT_MANAGEMENT, true));
-                            filterTabsView.setIsEditing(false);
+                            ghostSetTabsEditing(false);
                             showDoneItem(false);
                         }).show(true);
                     }
@@ -3798,7 +3798,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                                 }
                             })
                             .addIf(getMessagesController().getDialogFilters().size() > 1, R.drawable.tabs_reorder, LocaleController.getString(R.string.FilterReorder), () -> {
-                                filterTabsView.setIsEditing(true);
+                                ghostSetTabsEditing(true);
                                 showDoneItem(true);
                             })
                             .add(R.drawable.msg_edit, defaultTab ? LocaleController.getString(R.string.FilterEditAll) : LocaleController.getString(R.string.FilterEdit), () -> {
@@ -3889,7 +3889,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                             return;
                         }
                     } else if (filterTabsView != null && filterTabsView.isEditing()) {
-                        filterTabsView.setIsEditing(false);
+                        ghostSetTabsEditing(false);
                         showDoneItem(false);
                     } else if (actionBar.isActionModeShowed()) {
                         if (searchViewPager != null && searchViewPager.getVisibility() == View.VISIBLE && searchViewPager.actionModeShowing()) {
@@ -6852,6 +6852,25 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         }
     }
 
+    /** Режим перестановки папок: на время редактирования показываем «Все», иначе порядок собьётся */
+    private void ghostSetTabsEditing(boolean value) {
+        filterTabsView.setIsEditing(value);
+        if (com.ibek.ghost.Ghost.hideAllTab) {
+            updateFilterTabs(true, false);
+        }
+    }
+
+    /** Номер папки «Все чаты» в списке, даже если её вкладка скрыта */
+    private int ghostDefaultFilterId() {
+        final ArrayList<MessagesController.DialogFilter> filters = getMessagesController().getDialogFilters();
+        for (int i = 0; i < filters.size(); i++) {
+            if (filters.get(i).isDefault()) {
+                return i;
+            }
+        }
+        return 0;
+    }
+
     private void updateFilterTabs(boolean force, boolean animated) {
         if (filterTabsView == null || inPreviewMode || searchIsShowed || (rightSlidingDialogContainer != null && rightSlidingDialogContainer.hasFragment())) {
             return;
@@ -6880,6 +6899,9 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                 filterTabsView.removeTabs();
                 for (int a = 0, N = filters.size(); a < N; a++) {
                     if (filters.get(a).isDefault()) {
+                        if (com.ibek.ghost.Ghost.hideAllTab && !filterTabsView.isEditing()) {
+                            continue; // вкладка «Все» скрыта в настройках
+                        }
                         filterTabsView.addTab(a, 0, LocaleController.getString(R.string.FilterAllChats), null, false, true, filters.get(a).locked);
                     } else {
                         final MessagesController.DialogFilter filter = filters.get(a);
@@ -6914,6 +6936,9 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                 }
                 if (filterTabsView.isLocked(filterTabsView.getCurrentTabId())) {
                     filterTabsView.selectFirstTab();
+                } else if (!filterTabsView.hasTab(viewPages[0].selectedType)) {
+                    // открыта скрытая вкладка «Все» — переходим на первую папку
+                    filterTabsView.selectFirstTab();
                 }
             }
         } else {
@@ -6927,8 +6952,8 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                     viewPages[0].setTranslationX(0);
                     viewPages[1].setTranslationX(viewPages[0].getMeasuredWidth());
                 }
-                if (viewPages[0].selectedType != filterTabsView.getDefaultTabId()) {
-                    viewPages[0].selectedType = filterTabsView.getDefaultTabId();
+                if (viewPages[0].selectedType != ghostDefaultFilterId()) {
+                    viewPages[0].selectedType = ghostDefaultFilterId();
                     viewPages[0].dialogsAdapter.setDialogsType(0);
                     viewPages[0].dialogsType = initialDialogsType;
                     viewPages[0].dialogsAdapter.notifyDataSetChanged();
@@ -7287,7 +7312,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             return false;
         } else if (filterTabsView != null && filterTabsView.isEditing()) {
             if (invoked) {
-                filterTabsView.setIsEditing(false);
+                ghostSetTabsEditing(false);
                 showDoneItem(false);
             }
             return false;

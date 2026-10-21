@@ -31,6 +31,8 @@ public class Ghost {
     public static final String KEY_STORIES = "hide_stories";
     public static final String KEY_CONTENTS = "hide_contents";
     public static final String KEY_READ_ON_REPLY = "read_on_reply";
+    public static final String KEY_HIDE_ALL_TAB = "hide_all_tab";
+    public static final String KEY_EDIT_HISTORY = "edit_history";
 
     public static volatile boolean enabled;
     public static volatile boolean hideRead;
@@ -39,6 +41,8 @@ public class Ghost {
     public static volatile boolean hideStories;
     public static volatile boolean hideContents;
     public static volatile boolean readOnReply;
+    public static volatile boolean hideAllTab;
+    public static volatile boolean editHistory;
 
     /** Чаты, которые пользователь сам отметил прочитанными: dialogId → до какого момента разрешено */
     private static final ConcurrentHashMap<Long, Long> allowedRead = new ConcurrentHashMap<>();
@@ -60,6 +64,8 @@ public class Ghost {
         hideStories = p.getBoolean(KEY_STORIES, true);
         hideContents = p.getBoolean(KEY_CONTENTS, true);
         readOnReply = p.getBoolean(KEY_READ_ON_REPLY, true);
+        hideAllTab = p.getBoolean(KEY_HIDE_ALL_TAB, false);
+        editHistory = p.getBoolean(KEY_EDIT_HISTORY, true);
     }
 
     public static boolean get(String key) {
@@ -71,6 +77,8 @@ public class Ghost {
             case KEY_STORIES: return hideStories;
             case KEY_CONTENTS: return hideContents;
             case KEY_READ_ON_REPLY: return readOnReply;
+            case KEY_HIDE_ALL_TAB: return hideAllTab;
+            case KEY_EDIT_HISTORY: return editHistory;
             default: return false;
         }
     }
@@ -80,6 +88,12 @@ public class Ghost {
         load();
         if (key.equals(KEY_ENABLED) && value && hideOnline) {
             goOffline(-1, 0);
+        }
+        if (key.equals(KEY_HIDE_ALL_TAB)) {
+            // перерисовать панель папок во всех аккаунтах
+            for (int a : org.telegram.messenger.SharedConfig.activeAccounts) {
+                org.telegram.messenger.NotificationCenter.getInstance(a).postNotificationName(org.telegram.messenger.NotificationCenter.dialogFiltersUpdated);
+            }
         }
     }
 

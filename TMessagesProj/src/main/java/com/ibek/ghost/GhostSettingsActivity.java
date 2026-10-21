@@ -75,6 +75,18 @@ public class GhostSettingsActivity extends BaseFragment {
         bottomInfo.setText(LocaleController.getString(R.string.GhostModeManualRead));
         list.addView(bottomInfo);
 
+        // Другие фишки — работают независимо от режима призрака
+        HeaderCell extraHeader = new HeaderCell(context);
+        extraHeader.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
+        extraHeader.setText(LocaleController.getString(R.string.GhostExtras));
+        list.addView(extraHeader);
+        addExtra(context, list, Ghost.KEY_EDIT_HISTORY, R.string.GhostEditHistory, R.string.GhostEditHistoryInfo, true);
+        addExtra(context, list, Ghost.KEY_HIDE_ALL_TAB, R.string.GhostHideAllTab, R.string.GhostHideAllTabInfo, false);
+
+        TextInfoPrivacyCell extraInfo = new TextInfoPrivacyCell(context);
+        extraInfo.setText(LocaleController.getString(R.string.GhostExtrasInfo));
+        list.addView(extraInfo);
+
         updateEnabled();
 
         fragmentView = scroll;
@@ -98,6 +110,21 @@ public class GhostSettingsActivity extends BaseFragment {
             cell.setChecked(value);
         });
         optionCells.add(cell);
+        list.addView(cell);
+    }
+
+    private void addExtra(Context context, LinearLayout list, String key, int title, int info, boolean divider) {
+        TextCheckCell cell = new TextCheckCell(context);
+        cell.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
+        cell.setTextAndValueAndCheck(
+                LocaleController.getString(title),
+                LocaleController.getString(info),
+                Ghost.get(key), true, divider);
+        cell.setOnClickListener(v -> {
+            boolean value = !Ghost.get(key);
+            Ghost.set(key, value);
+            cell.setChecked(value);
+        });
         list.addView(cell);
     }
 

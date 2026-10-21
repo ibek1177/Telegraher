@@ -31,4 +31,14 @@
     <string name="GhostUpdateError">Не удалось проверить обновления. Проверьте интернет.</string>
     <string name="GhostUpdateLocalBuild">локальная сборка</string>
     <string name="GhostUpdateLocalBuildInfo">Эта версия собрана не на GitHub, проверка обновлений для неё недоступна.</string>
+    <string name="GhostExtras">Другие фишки</string>
+    <string name="GhostEditHistory">История правок</string>
+    <string name="GhostEditHistoryInfo">Сохранять исходный текст отредактированных сообщений</string>
+    <string name="GhostHideAllTab">Скрыть вкладку «Все чаты»</string>
+    <string name="GhostHideAllTabInfo">Если есть свои папки, первой будет ваша папка</string>
+    <string name="GhostExtrasInfo">Эти настройки работают и без режима призрака. Историю правок смотрите так: зажмите сообщение с пометкой «изменено» → «История правок».</string>
+    <string name="GhostEditHistoryMenu">История правок</string>
+    <string name="GhostEditHistoryVersion">Версия %1$d · %2$s</string>
+    <string name="GhostEditHistoryNow">Сейчас · %1$s</string>
+    <string name="GhostEditHistoryEmpty">Прежний текст не сохранён: сообщение изменили до установки этой версии или до того, как оно пришло на телефон.</string>
 </resources>
