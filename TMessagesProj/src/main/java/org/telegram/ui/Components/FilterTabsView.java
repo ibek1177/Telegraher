@@ -82,9 +82,7 @@ public class FilterTabsView extends FrameLayout {
     }
 
     public int getStableId(int selectedType) {
-        // selectedType — это id вкладки; когда «Все» скрыта, id и позиция не совпадают
-        int position = idToPosition.get(selectedType, -1);
-        return position < 0 ? -1 : positionToStableId.get(position, -1);
+        return positionToStableId.get(selectedType, -1);
     }
 
     public boolean selectTabWithStableId(int stableId) {
