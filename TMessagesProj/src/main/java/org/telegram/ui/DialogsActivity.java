@@ -6914,8 +6914,6 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                 }
                 if (filterTabsView.isLocked(filterTabsView.getCurrentTabId())) {
                     filterTabsView.selectFirstTab();
-                } else if (com.ibek.ghost.Ghost.hideAllTab && filterTabsView.currentTabIsDefault()) {
-                    filterTabsView.selectFirstTab(); // не оставляем выбранной спрятанную «Все»
                 }
             }
         } else {

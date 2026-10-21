@@ -80,8 +80,7 @@ public class GhostSettingsActivity extends BaseFragment {
         extraHeader.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
         extraHeader.setText(LocaleController.getString(R.string.GhostExtras));
         list.addView(extraHeader);
-        addExtra(context, list, Ghost.KEY_EDIT_HISTORY, R.string.GhostEditHistory, R.string.GhostEditHistoryInfo, true);
-        addExtra(context, list, Ghost.KEY_HIDE_ALL_TAB, R.string.GhostHideAllTab, R.string.GhostHideAllTabInfo, false);
+        addExtra(context, list, Ghost.KEY_EDIT_HISTORY, R.string.GhostEditHistory, R.string.GhostEditHistoryInfo, false);
 
         TextInfoPrivacyCell extraInfo = new TextInfoPrivacyCell(context);
         extraInfo.setText(LocaleController.getString(R.string.GhostExtrasInfo));

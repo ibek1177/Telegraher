@@ -289,10 +289,6 @@ public class FilterTabsView extends FrameLayout {
 
         @Override
         protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-            if (ghostHidden(currentTab)) {
-                setMeasuredDimension(0, MeasureSpec.getSize(heightMeasureSpec));
-                return;
-            }
             int w = currentTab.getWidth(false) + dp(TAB_PADDING_WIDTH) + additionalTabWidth;
             setMeasuredDimension(w, MeasureSpec.getSize(heightMeasureSpec));
         }
@@ -1202,16 +1198,7 @@ public class FilterTabsView extends FrameLayout {
         if (tabs.isEmpty()) {
             return;
         }
-        int i = 0;
-        if (com.ibek.ghost.Ghost.hideAllTab && !isEditing) {
-            while (i < tabs.size() && tabs.get(i).isDefault) {
-                i++;
-            }
-            if (i >= tabs.size()) {
-                i = 0;
-            }
-        }
-        scrollToTab(tabs.get(i), i);
+        scrollToTab(tabs.get(0), 0);
     }
 
     public boolean isFirstTab() {
@@ -1244,11 +1231,7 @@ public class FilterTabsView extends FrameLayout {
     }
 
     public int getNextPageId(boolean forward) {
-        int pos = currentPosition + (forward ? 1 : -1);
-        if (pos >= 0 && pos < tabs.size() && ghostHidden(tabs.get(pos))) {
-            return -1; // за спрятанной вкладкой «Все» свайпа нет
-        }
-        return positionToId.get(pos, -1);
+        return positionToId.get(currentPosition + (forward ? 1 : -1), -1);
     }
 
     public void removeTabs() {
@@ -1263,11 +1246,6 @@ public class FilterTabsView extends FrameLayout {
 
     public boolean hasTab(int id) {
         return idToPosition.get(id, -1) != -1;
-    }
-
-    /** true — эту вкладку («Все чаты») надо спрятать (включён тумблер и не идёт перестановка папок) */
-    private boolean ghostHidden(Tab t) {
-        return com.ibek.ghost.Ghost.hideAllTab && t != null && t.isDefault && !isEditing;
     }
 
     public void resetTabId() {
@@ -1400,12 +1378,6 @@ public class FilterTabsView extends FrameLayout {
         positionToCount.clear();
         int xOffset = listViewPaddingH;
         for (int a = 0, N = tabs.size(); a < N; a++) {
-            if (ghostHidden(tabs.get(a))) {
-                positionToWidth.put(a, 0);
-                positionToCount.put(a, tabs.get(a).counter);
-                positionToX.put(a, xOffset);
-                continue; // спрятанная вкладка не занимает места
-            }
             int tabWidth = tabs.get(a).getWidth(false);
             positionToWidth.put(a, tabWidth);
             positionToCount.put(a, tabs.get(a).counter);
@@ -1578,14 +1550,8 @@ public class FilterTabsView extends FrameLayout {
                 firstTab.setTitle(allTabsWidth > width ? LocaleController.getString(R.string.FilterAllChatsShort) : LocaleController.getString(R.string.FilterAllChats), null, false);
                 int trueTabsWidth = allTabsWidth - tabWidth;
                 trueTabsWidth += firstTab.getWidth(false);
-                int divisor = tabs.size();
-                if (ghostHidden(firstTab)) {
-                    // спрятанная «Все» не занимает места: убираем её слот и делим на видимые вкладки
-                    trueTabsWidth -= firstTab.getWidth(false) + dp(TAB_PADDING_WIDTH);
-                    divisor = Math.max(1, tabs.size() - 1);
-                }
                 int prevWidth = additionalTabWidth;
-                additionalTabWidth = trueTabsWidth < width ? (width - trueTabsWidth) / divisor : 0;
+                additionalTabWidth = trueTabsWidth < width ? (width - trueTabsWidth) / tabs.size() : 0;
                 if (prevWidth != additionalTabWidth) {
                     ignoreLayout = true;
                     RecyclerView.ItemAnimator animator = listView.getItemAnimator();
