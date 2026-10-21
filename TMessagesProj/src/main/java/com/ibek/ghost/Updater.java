@@ -137,7 +137,9 @@ public class Updater {
                 .setTitle(LocaleController.getString(R.string.GhostUpdateTitle))
                 .setMessage(text)
                 .setPositiveButton(LocaleController.getString(R.string.GhostUpdateDownload), (dialog, which) ->
-                        Browser.openUrl(activity, r.apkUrl != null ? r.apkUrl : r.pageUrl))
+                        // системный браузер скачает APK и сам предложит установить;
+                        // внутренний загрузчик Telegram на APK застревает
+                        Browser.openUrlInSystemBrowser(activity, r.apkUrl != null ? r.apkUrl : r.pageUrl))
                 .setNegativeButton(LocaleController.getString(R.string.GhostUpdateLater), null)
                 .show();
     }
