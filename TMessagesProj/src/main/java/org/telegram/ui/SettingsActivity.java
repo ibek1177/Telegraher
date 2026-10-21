@@ -746,6 +746,9 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
         if (items.get(items.size() - 1).viewType != UniversalAdapter.VIEW_TYPE_SHADOW)
             items.add(UItem.asShadow(null));
 
+        items.add(SettingCell.Factory.of(41, IconBackgroundColors.GREEN.top, IconBackgroundColors.GREEN.bottom, R.drawable.settings_features, getString(R.string.GhostUpdates), LocaleController.formatString(R.string.GhostUpdatesInfo, com.ibek.ghost.Updater.versionName())));
+        items.add(UItem.asShadow(null));
+
         items.add(UItem.asHeader(getString(R.string.SettingsHelp)));
         items.add(SettingCell.Factory.of(17, IconBackgroundColors.ORANGE.top, IconBackgroundColors.ORANGE.bottom, R.drawable.settings_ask, getString(R.string.AskAQuestion)));
         items.add(SettingCell.Factory.of(18, IconBackgroundColors.BLUE_LIGHT.top, IconBackgroundColors.BLUE_LIGHT.bottom, R.drawable.settings_faq, getString(R.string.TelegramFAQ)));
@@ -830,6 +833,11 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
                 break;
             case 40:
                 presentSettingFragment(new com.ibek.ghost.GhostSettingsActivity());
+                break;
+            case 41:
+                if (getParentActivity() != null) {
+                    com.ibek.ghost.Updater.check(getParentActivity(), true);
+                }
                 break;
             case 5:
                 presentSettingFragment(new NotificationsSettingsActivity());

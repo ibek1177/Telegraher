@@ -6963,6 +6963,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
             MonetHelper.refreshMonetThemeIfChanged();
         }
         checkWasMutedByAdmin(true);
+        com.ibek.ghost.Updater.checkOnStart(this);
         //FileLog.d("UI resume time = " + (SystemClock.elapsedRealtime() - ApplicationLoader.startTime));
         NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.startAllHeavyOperations, 4096);
         MediaController.getInstance().setFeedbackView(feedbackView = actionBarLayout.getView(), true);

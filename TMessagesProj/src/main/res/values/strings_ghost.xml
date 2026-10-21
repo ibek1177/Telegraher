@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Строки режима призрака и обновлений (ibek1177). Отдельный файл, чтобы не конфликтовать с обновлениями Telegram. -->
+<resources>
+    <string name="GhostMode">Режим призрака</string>
+    <string name="GhostModeStatusOn">Включён: вас не видно</string>
+    <string name="GhostModeStatusOff">Читать и смотреть незаметно</string>
+    <string name="GhostModeEnable">Включить режим призрака</string>
+    <string name="GhostModeEnableInfo">Читайте и смотрите незаметно</string>
+    <string name="GhostModeWarning">Работает для всех аккаунтов в приложении. Telegram формально не разрешает такие функции в сторонних клиентах, риск блокировки небольшой, но не нулевой.</string>
+    <string name="GhostModeWhat">Что скрывать</string>
+    <string name="GhostHideRead">Не отправлять «прочитано»</string>
+    <string name="GhostHideReadInfo">У собеседника сообщения останутся с одной галочкой</string>
+    <string name="GhostReadOnReply">Отмечать прочитанным, когда отвечаю</string>
+    <string name="GhostReadOnReplyInfo">Иначе странно: вы ответили, а сообщения не прочитаны</string>
+    <string name="GhostHideOnline">Не показывать «в сети»</string>
+    <string name="GhostHideOnlineInfo">Всегда «был(а) недавно», даже после отправки сообщения</string>
+    <string name="GhostHideTyping">Не показывать «печатает»</string>
+    <string name="GhostHideTypingInfo">И «записывает голосовое», «выбирает стикер»</string>
+    <string name="GhostHideContents">Не отмечать прослушанные голосовые</string>
+    <string name="GhostHideContentsInfo">Голосовые и кружки останутся непрослушанными у отправителя</string>
+    <string name="GhostHideStories">Не светиться в просмотрах сторис</string>
+    <string name="GhostHideStoriesInfo">Вас не будет в списке просмотревших</string>
+    <string name="GhostModeManualRead">Чтобы всё-таки отметить чат прочитанным, зажмите его в списке чатов и выберите «Отметить как прочитанное».</string>
+    <string name="GhostUpdates">Обновления</string>
+    <string name="GhostUpdatesInfo">Версия %1$s · нажмите, чтобы проверить</string>
+    <string name="GhostUpdateTitle">Доступна новая версия</string>
+    <string name="GhostUpdateText">Вышла %1$s. У вас установлена %2$s.\n\nСкачайте APK и установите поверх текущей версии: вход и чаты сохранятся.</string>
+    <string name="GhostUpdateDownload">Скачать</string>
+    <string name="GhostUpdateLater">Позже</string>
+    <string name="GhostUpdateLatest">У вас последняя версия</string>
+    <string name="GhostUpdateError">Не удалось проверить обновления. Проверьте интернет.</string>
+    <string name="GhostUpdateLocalBuild">локальная сборка</string>
+    <string name="GhostUpdateLocalBuildInfo">Эта версия собрана не на GitHub, проверка обновлений для неё недоступна.</string>
+</resources>
