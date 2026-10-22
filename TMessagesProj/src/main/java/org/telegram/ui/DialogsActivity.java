@@ -6792,12 +6792,13 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             }
         }
 
-        FilterTabsView.Tab tab = filterTabsView.getTab(index);
+        int fix = com.ibek.ghost.Ghost.hideAllTab ? 1 : 0;
+        FilterTabsView.Tab tab = filterTabsView.getTab(index - fix);
         if (tab != null) {
             if (viewPages != null && viewPages.length > 0 && viewPages[0].selectedType == tab.id) {
                 return;
             }
-            filterTabsView.scrollToTab(tab, index);
+            filterTabsView.scrollToTab(tab, index - fix);
         } else {
             filterTabsView.selectLastTab();
         }
@@ -6880,13 +6881,18 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                 filterTabsView.removeTabs();
                 for (int a = 0, N = filters.size(); a < N; a++) {
                     if (filters.get(a).isDefault()) {
-                        filterTabsView.addTab(a, 0, LocaleController.getString(R.string.FilterAllChats), null, false, true, filters.get(a).locked);
+                        if (!com.ibek.ghost.Ghost.hideAllTab) filterTabsView.addTab(a, 0, LocaleController.getString(R.string.FilterAllChats), null, false, true, filters.get(a).locked);
                     } else {
                         final MessagesController.DialogFilter filter = filters.get(a);
                         filterTabsView.addTab(a, filter.localId, filter.name, filter.entities, filter.title_noanimate, false, filters.get(a).locked);
                     }
                 }
-                if (stableId >= 0) {
+                if (com.ibek.ghost.Ghost.hideAllTab && stableId <= 0) {
+                    id = filterTabsView.getFirstTabId();
+                    updateCurrentTab = true;
+                    viewPages[0].selectedType = id;
+                    filterTabsView.selectTabWithStableId(filterTabsView.getStableId(0));
+                } else if (stableId >= 0) {
                     if (selectWithStableId) {
                         if (!filterTabsView.selectTabWithStableId(stableId)) {
                             while (id >= 0 && !filterTabsView.selectTabWithStableId(filterTabsView.getStableId(id))) {
