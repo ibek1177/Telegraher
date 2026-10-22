@@ -543,6 +543,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
     public long replyMessageAuthor;
     public long forwardOriginalChannel;
     private int initialDialogsType;
+    private ImageView ghostCornerButton;
 
     private boolean checkingImportDialog;
 
@@ -5643,8 +5644,41 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         checkUi_forwardCommentFieldVisible();
         checkUi_searchFieldStyle();
 
+        if (contentView != null && initialDialogsType == 0 && folderId == 0 && !onlySelect) {
+            ghostCornerButton = new ImageView(context);
+            ghostCornerButton.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+            ghostCornerButton.setImageResource(R.drawable.msg_stories_stealth);
+            android.graphics.drawable.GradientDrawable ghostBg = new android.graphics.drawable.GradientDrawable();
+            ghostBg.setShape(android.graphics.drawable.GradientDrawable.OVAL);
+            ghostCornerButton.setBackground(ghostBg);
+            ghostCornerButton.setPadding(dp(9), dp(9), dp(9), dp(9));
+            ghostCornerButton.setOnClickListener(v -> {
+                boolean on = !com.ibek.ghost.Ghost.enabled;
+                com.ibek.ghost.Ghost.set(com.ibek.ghost.Ghost.KEY_ENABLED, on);
+                updateGhostCornerButton();
+                try {
+                    android.widget.Toast.makeText(getParentActivity(), getString(on ? R.string.GhostCornerOn : R.string.GhostCornerOff), android.widget.Toast.LENGTH_SHORT).show();
+                } catch (Throwable ignore) {}
+            });
+            contentView.addView(ghostCornerButton, LayoutHelper.createFrame(42, 42, Gravity.BOTTOM | Gravity.LEFT, 14, 0, 0, 14));
+            updateGhostCornerButton();
+        }
+
         ViewCompat.setOnApplyWindowInsetsListener(fragmentView, this::onApplyWindowInsets);
         return fragmentView;
+    }
+
+    private void updateGhostCornerButton() {
+        if (ghostCornerButton == null) {
+            return;
+        }
+        boolean on = com.ibek.ghost.Ghost.enabled;
+        android.graphics.drawable.Drawable bg = ghostCornerButton.getBackground();
+        if (bg instanceof android.graphics.drawable.GradientDrawable) {
+            ((android.graphics.drawable.GradientDrawable) bg).setColor(on ? Theme.getColor(Theme.key_chats_actionBackground) : 0x55808080);
+        }
+        ghostCornerButton.setColorFilter(0xFFFFFFFF);
+        ghostCornerButton.setAlpha(on ? 1f : 0.55f);
     }
 
     private void setStoriesOvercroll(ViewPage viewPage, float storiesOverscroll) {

@@ -65,4 +65,6 @@
     <string name="GhostAboutVersion">Версия: %1$s</string>
     <string name="GhostAboutFeatures">Наши фишки:</string>
     <string name="GhostAboutFooter">Собрано по ночам на кофе и мате. Работает — не трогай, бля. А если что отвалилось — ну, пиши, разрулим 😎</string>
+    <string name="GhostCornerOn">Призрак включён</string>
+    <string name="GhostCornerOff">Призрак выключен</string>
 </resources>
