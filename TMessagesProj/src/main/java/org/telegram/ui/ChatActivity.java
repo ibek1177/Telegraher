@@ -44138,6 +44138,12 @@ public class ChatActivity extends BaseFragment implements
             });
         }
 
+        if (com.ibek.ghost.ChatExtras.isSaverInstalled(getContext()) && com.ibek.ghost.ChatExtras.findDownloadableLink(str) != null) {
+            options.add(R.drawable.msg_download, getString(R.string.GhostDownloadMenu), () -> {
+                com.ibek.ghost.ChatExtras.download(getParentActivity(), str);
+            });
+        }
+
         if (customTabs && !isHashtag || isMail) {
             options.add(R.drawable.msg_openin, getString(R.string.OpenInSystemBrowser2), () -> {
                 if (MessagesController.getInstance(currentAccount).isWebBrowserExceptionsLimitReached(true)) {
