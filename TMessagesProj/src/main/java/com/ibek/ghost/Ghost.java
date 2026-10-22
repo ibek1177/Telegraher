@@ -83,6 +83,66 @@ public class Ghost {
         }
     }
 
+    // Призрак по людям: режим для конкретного чата. 0 — как глобально, 1 — всегда скрывать, 2 — никогда.
+    public static final int CHAT_DEFAULT = 0;
+    public static final int CHAT_ALWAYS = 1;
+    public static final int CHAT_NEVER = 2;
+
+    private static final java.util.concurrent.ConcurrentHashMap<Long, Integer> chatModes = new java.util.concurrent.ConcurrentHashMap<>();
+    private static volatile boolean chatModesLoaded;
+
+    private static void loadChatModes() {
+        if (chatModesLoaded) {
+            return;
+        }
+        synchronized (chatModes) {
+            if (chatModesLoaded) {
+                return;
+            }
+            String raw = prefs().getString("chat_modes", "");
+            for (String part : raw.split(";")) {
+                if (part.isEmpty()) continue;
+                int c = part.indexOf(':');
+                if (c <= 0) continue;
+                try {
+                    chatModes.put(Long.parseLong(part.substring(0, c)), Integer.parseInt(part.substring(c + 1)));
+                } catch (Throwable ignore) {
+                }
+            }
+            chatModesLoaded = true;
+        }
+    }
+
+    public static int chatMode(long dialogId) {
+        loadChatModes();
+        Integer m = chatModes.get(dialogId);
+        return m == null ? CHAT_DEFAULT : m;
+    }
+
+    public static void setChatMode(long dialogId, int mode) {
+        loadChatModes();
+        if (mode == CHAT_DEFAULT) {
+            chatModes.remove(dialogId);
+        } else {
+            chatModes.put(dialogId, mode);
+        }
+        StringBuilder sb = new StringBuilder();
+        for (java.util.Map.Entry<Long, Integer> e : chatModes.entrySet()) {
+            if (sb.length() > 0) sb.append(';');
+            sb.append(e.getKey()).append(':').append(e.getValue());
+        }
+        prefs().edit().putString("chat_modes", sb.toString()).apply();
+    }
+
+    /** Действует ли призрак для этого чата с учётом персонального режима */
+    private static boolean ghostFor(long dialogId) {
+        switch (chatMode(dialogId)) {
+            case CHAT_ALWAYS: return true;
+            case CHAT_NEVER: return false;
+            default: return enabled;
+        }
+    }
+
     public static void set(String key, boolean value) {
         prefs().edit().putBoolean(key, value).apply();
         load();
@@ -112,42 +172,50 @@ public class Ghost {
      * @return true — запрос не отправлять
      */
     public static boolean filter(int account, TLObject o) {
-        if (!enabled || o == null) {
+        if (o == null) {
             return false;
         }
 
+        // Онлайн — это глобальный статус, скрываем только при общем призраке
         if (o instanceof TL_account.updateStatus) {
-            if (hideOnline) {
+            if (enabled && hideOnline) {
                 ((TL_account.updateStatus) o).offline = true;
             }
             return false;
         }
 
-        if (hideTyping && (o instanceof TLRPC.TL_messages_setTyping || o instanceof TLRPC.TL_messages_setEncryptedTyping)) {
+        // «печатает» — с учётом персонального режима чата
+        if (o instanceof TLRPC.TL_messages_setTyping) {
+            long d = DialogObject.getPeerDialogId(((TLRPC.TL_messages_setTyping) o).peer);
+            return hideTyping && ghostFor(d);
+        }
+        if (o instanceof TLRPC.TL_messages_setEncryptedTyping) {
+            return enabled && hideTyping;
+        }
+
+        // «прочитано» — с учётом персонального режима чата
+        if (o instanceof TLRPC.TL_messages_readHistory) {
+            long d = DialogObject.getPeerDialogId(((TLRPC.TL_messages_readHistory) o).peer);
+            return hideRead && ghostFor(d) && !isReadAllowed(d);
+        }
+        if (o instanceof TLRPC.TL_channels_readHistory) {
+            TLRPC.InputChannel ch = ((TLRPC.TL_channels_readHistory) o).channel;
+            long d = ch == null ? 0 : -ch.channel_id;
+            return hideRead && ghostFor(d) && !isReadAllowed(d);
+        }
+        if (o instanceof TLRPC.TL_messages_readDiscussion) {
+            long d = DialogObject.getPeerDialogId(((TLRPC.TL_messages_readDiscussion) o).peer);
+            return hideRead && ghostFor(d) && !isReadAllowed(d);
+        }
+        if (o instanceof TLRPC.TL_messages_readEncryptedHistory) {
+            return enabled && hideRead;
+        }
+
+        // Прослушивание голосовых/кружков и просмотры сторис — глобально
+        if (enabled && hideContents && (o instanceof TLRPC.TL_messages_readMessageContents || o instanceof TLRPC.TL_channels_readMessageContents)) {
             return true;
         }
-
-        if (hideRead) {
-            if (o instanceof TLRPC.TL_messages_readHistory) {
-                return !isReadAllowed(DialogObject.getPeerDialogId(((TLRPC.TL_messages_readHistory) o).peer));
-            }
-            if (o instanceof TLRPC.TL_channels_readHistory) {
-                TLRPC.InputChannel ch = ((TLRPC.TL_channels_readHistory) o).channel;
-                return ch == null || !isReadAllowed(-ch.channel_id);
-            }
-            if (o instanceof TLRPC.TL_messages_readDiscussion) {
-                return !isReadAllowed(DialogObject.getPeerDialogId(((TLRPC.TL_messages_readDiscussion) o).peer));
-            }
-            if (o instanceof TLRPC.TL_messages_readEncryptedHistory) {
-                return true;
-            }
-        }
-
-        if (hideContents && (o instanceof TLRPC.TL_messages_readMessageContents || o instanceof TLRPC.TL_channels_readMessageContents)) {
-            return true;
-        }
-
-        if (hideStories && (o instanceof TL_stories.TL_stories_readStories || o instanceof TL_stories.TL_stories_incrementStoryViews)) {
+        if (enabled && hideStories && (o instanceof TL_stories.TL_stories_readStories || o instanceof TL_stories.TL_stories_incrementStoryViews)) {
             return true;
         }
 
@@ -171,10 +239,10 @@ public class Ghost {
             return;
         }
         long dialogId = DialogObject.getPeerDialogId(peer);
-        if (hideRead && readOnReply && dialogId != 0) {
+        if (hideRead && readOnReply && dialogId != 0 && ghostFor(dialogId)) {
             AndroidUtilities.runOnUIThread(() -> readNow(account, dialogId), 600);
         }
-        if (hideOnline) {
+        if (enabled && hideOnline) {
             goOffline(account, 1500);
         }
     }

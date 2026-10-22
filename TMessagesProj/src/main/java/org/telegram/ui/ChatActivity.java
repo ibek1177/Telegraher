@@ -1238,6 +1238,8 @@ public class ChatActivity extends BaseFragment implements
 
     public final static int OPTION_VIEW_STATISTICS = 115;
     public final static int OPTION_GHOST_EDIT_HISTORY = 900;
+    public final static int OPTION_GHOST_DOWNLOAD = 901;
+    public final static int OPTION_GHOST_REMIND = 902;
 
     private final static int[] allowedNotificationsDuringChatListAnimations = new int[]{
             NotificationCenter.messagesRead,
@@ -4045,6 +4047,8 @@ public class ChatActivity extends BaseFragment implements
                     }
                 } else if (id == chat_menu_topic_create) {
                     presentFragment(TopicCreateFragment.create(-dialog_id, 0).setOpenInChatActivity(ChatActivity.this));
+                } else if (id == 950) {
+                    showGhostChatDialog();
                 } else if (id == 888) {
                     dumpCanvas();
                 } else if (id == 889) {
@@ -4500,6 +4504,9 @@ public class ChatActivity extends BaseFragment implements
 
         if (BuildVars.DEBUG_PRIVATE_VERSION && headerItem != null) {
             headerItem.addSubItem(888, R.drawable.menu_download_round, "Dump Canvas");
+        }
+        if (headerItem != null && dialog_id != 0 && chatMode == 0) {
+            headerItem.addSubItem(950, R.drawable.msg_stories_stealth, LocaleController.getString(R.string.GhostChatMenu));
         }
 
         actionModeViews.clear();
@@ -30829,6 +30836,19 @@ public class ChatActivity extends BaseFragment implements
                 icons.add(R.drawable.msg_recent);
             }
 
+            if (selectedObject != null && selectedObject.messageOwner != null && !options.contains(OPTION_GHOST_DOWNLOAD)
+                    && com.ibek.ghost.ChatExtras.isSaverInstalled(getContext())
+                    && com.ibek.ghost.ChatExtras.findDownloadableLink(selectedObject.messageOwner.message) != null) {
+                items.add(LocaleController.getString(R.string.GhostDownloadMenu));
+                options.add(OPTION_GHOST_DOWNLOAD);
+                icons.add(R.drawable.msg_download);
+            }
+            if (selectedObject != null && !selectedObject.scheduled && !options.contains(OPTION_GHOST_REMIND)) {
+                items.add(LocaleController.getString(R.string.GhostRemindMenu));
+                options.add(OPTION_GHOST_REMIND);
+                icons.add(R.drawable.msg_calendar);
+            }
+
             if (options.isEmpty() && optionsView == null) {
                 return false;
             }
@@ -33049,6 +33069,30 @@ public class ChatActivity extends BaseFragment implements
         MediaController.saveFile(path, getParentActivity(), messageObject.isVideo() ? 1 : 0, null, null);
     }
 
+    private void showGhostChatDialog() {
+        if (getParentActivity() == null || dialog_id == 0) {
+            return;
+        }
+        final long d = dialog_id;
+        int current = com.ibek.ghost.Ghost.chatMode(d);
+        String check = "  ✓";
+        CharSequence[] items = new CharSequence[]{
+                LocaleController.getString(R.string.GhostChatDefault) + (current == 0 ? check : ""),
+                LocaleController.getString(R.string.GhostChatAlways) + (current == 1 ? check : ""),
+                LocaleController.getString(R.string.GhostChatNever) + (current == 2 ? check : ""),
+        };
+        org.telegram.ui.ActionBar.AlertDialog.Builder b = new org.telegram.ui.ActionBar.AlertDialog.Builder(getParentActivity());
+        b.setTitle(LocaleController.getString(R.string.GhostChatMenu));
+        b.setItems(items, (dialog, which) -> {
+            com.ibek.ghost.Ghost.setChatMode(d, which);
+            try {
+                android.widget.Toast.makeText(getParentActivity(), LocaleController.getString(R.string.GhostChatSaved), android.widget.Toast.LENGTH_SHORT).show();
+            } catch (Throwable ignore) {}
+        });
+        b.setNegativeButton(LocaleController.getString(R.string.Cancel), null);
+        showDialog(b.create());
+    }
+
     private void processSelectedOption(int option) {
         if (selectedObject == null || getParentActivity() == null) {
             return;
@@ -33057,6 +33101,20 @@ public class ChatActivity extends BaseFragment implements
         switch (option) {
             case OPTION_GHOST_EDIT_HISTORY: {
                 com.ibek.ghost.EditHistoryDialog.show(this, selectedObject);
+                break;
+            }
+            case OPTION_GHOST_DOWNLOAD: {
+                if (selectedObject != null && selectedObject.messageOwner != null) {
+                    String link = com.ibek.ghost.ChatExtras.findDownloadableLink(selectedObject.messageOwner.message);
+                    com.ibek.ghost.ChatExtras.download(getParentActivity(), link);
+                }
+                break;
+            }
+            case OPTION_GHOST_REMIND: {
+                if (selectedObject != null && selectedObject.messageOwner != null) {
+                    String link = com.ibek.ghost.ChatExtras.findDownloadableLink(selectedObject.messageOwner.message);
+                    com.ibek.ghost.ChatExtras.remind(this, selectedObject.messageOwner.message, link);
+                }
                 break;
             }
             case OPTION_RETRY: {

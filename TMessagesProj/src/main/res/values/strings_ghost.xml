@@ -41,4 +41,22 @@
     <string name="GhostEditHistoryVersion">Версия %1$d · %2$s</string>
     <string name="GhostEditHistoryNow">Сейчас · %1$s</string>
     <string name="GhostEditHistoryEmpty">Прежний текст не сохранён: сообщение изменили до установки этой версии или до того, как оно пришло на телефон.</string>
+    <string name="GhostChatMenu">Режим призрака для чата</string>
+    <string name="GhostChatDefault">Как в общих настройках</string>
+    <string name="GhostChatAlways">Всегда скрывать</string>
+    <string name="GhostChatNever">Никогда не скрывать</string>
+    <string name="GhostChatSaved">Сохранено</string>
+    <string name="GhostDownloadMenu">Скачать видео</string>
+    <string name="GhostSaverMissing">Сначала установите приложение «Сохранялка»</string>
+    <string name="GhostRemindMenu">Напомнить</string>
+    <string name="GhostRemindTitle">Когда напомнить?</string>
+    <string name="GhostRemindHour">Через час</string>
+    <string name="GhostRemind3Hours">Через 3 часа</string>
+    <string name="GhostRemindEvening">Сегодня вечером</string>
+    <string name="GhostRemindTomorrow">Завтра утром</string>
+    <string name="GhostRemindSet">Напоминание поставлено</string>
+    <string name="GhostRemindFail">Не удалось поставить напоминание</string>
+    <string name="GhostReminderChannel">Напоминания</string>
+    <string name="GhostReminderTitle">Напоминание</string>
+    <string name="GhostReminderEmpty">Сообщение без текста</string>
 </resources>
