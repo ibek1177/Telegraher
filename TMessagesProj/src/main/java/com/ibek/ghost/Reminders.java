@@ -26,7 +26,7 @@ public class Reminders {
     public static void ensureChannel(Context ctx) {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                NotificationManager nm = ctx.getSystemService(NotificationManager.class);
+                NotificationManager nm = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
                 if (nm != null && nm.getNotificationChannel(CHANNEL) == null) {
                     NotificationChannel ch = new NotificationChannel(CHANNEL,
                             LocaleController.getString(R.string.GhostReminderChannel), NotificationManager.IMPORTANCE_HIGH);
@@ -71,7 +71,7 @@ public class Reminders {
     public static void show(Context ctx, int id, String text, String link) {
         try {
             ensureChannel(ctx);
-            NotificationManager nm = ctx.getSystemService(NotificationManager.class);
+            NotificationManager nm = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
             if (nm == null) {
                 return;
             }
@@ -94,10 +94,11 @@ public class Reminders {
             } else {
                 b = new android.app.Notification.Builder(ctx);
             }
+            String shownText = (text == null || text.isEmpty()) ? LocaleController.getString(R.string.GhostReminderEmpty) : text;
             b.setSmallIcon(R.drawable.notification)
                     .setContentTitle(LocaleController.getString(R.string.GhostReminderTitle))
-                    .setContentText(text == null || text.isEmpty() ? LocaleController.getString(R.string.GhostReminderEmpty) : text)
-                    .setStyle(new android.app.Notification.BigTextStyle().bigText(text))
+                    .setContentText(shownText)
+                    .setStyle(new android.app.Notification.BigTextStyle().bigText(shownText))
                     .setAutoCancel(true)
                     .setContentIntent(pi);
             nm.notify(id, b.build());
