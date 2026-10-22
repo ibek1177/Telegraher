@@ -4192,7 +4192,7 @@ public class AndroidUtilities {
                     int idx = fileName.lastIndexOf('.');
                     if (idx != -1) {
                         String ext = fileName.substring(idx + 1);
-                        realMimeType = myMime.getMimeTypeFromExtension(ext.toLowerCase());
+                        realMimeType = "apk".equals(ext.toLowerCase()) ? "application/vnd.android.package-archive" : myMime.getMimeTypeFromExtension(ext.toLowerCase());
                         if (realMimeType == null) {
                             realMimeType = document.mime_type;
                             if (realMimeType == null || realMimeType.length() == 0) {
@@ -4253,7 +4253,7 @@ public class AndroidUtilities {
                 if (restrict && MessageObject.isV(ext)) {
                     return true;
                 }
-                realMimeType = myMime.getMimeTypeFromExtension(ext.toLowerCase());
+                realMimeType = "apk".equals(ext.toLowerCase()) ? "application/vnd.android.package-archive" : myMime.getMimeTypeFromExtension(ext.toLowerCase());
                 if (realMimeType == null) {
                     realMimeType = mimeType;
                     if (realMimeType == null || realMimeType.length() == 0) {
@@ -4420,7 +4420,7 @@ public class AndroidUtilities {
             int idx = fileName.lastIndexOf('.');
             if (idx != -1) {
                 String ext = fileName.substring(idx + 1);
-                realMimeType = myMime.getMimeTypeFromExtension(ext.toLowerCase());
+                realMimeType = "apk".equals(ext.toLowerCase()) ? "application/vnd.android.package-archive" : myMime.getMimeTypeFromExtension(ext.toLowerCase());
                 if (realMimeType == null) {
                     if (media instanceof TLRPC.TL_document) {
                         realMimeType = ((TLRPC.TL_document) media).mime_type;
