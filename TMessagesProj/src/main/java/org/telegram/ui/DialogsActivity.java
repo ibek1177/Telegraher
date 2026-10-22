@@ -3518,12 +3518,8 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             } else {
                 statusDrawable = new AnimatedEmojiDrawable.SwapAnimatedEmojiDrawable(null, dp(26));
                 statusDrawable.center = true;
-                logoDrawable = context.getResources().getDrawable(R.drawable.telegram_logo_2).mutate();
-                logoDrawable.setBounds(0, dp(2), logoDrawable.getIntrinsicWidth(), dp(2) + logoDrawable.getIntrinsicHeight());
-                logoDrawable.setColorFilter(getThemedColor(Theme.key_telegram_color_dialogsLogo), PorterDuff.Mode.MULTIPLY);
-                SpannableStringBuilder ssb = new SpannableStringBuilder(getString(R.string.AppName));
-                ssb.setSpan(new ImageSpan(logoDrawable), 0, ssb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                actionBar.setTitle(ssb, statusDrawable);
+                // iBekgram: показываем своё имя текстом вместо логотипа Telegram
+                actionBar.setTitle("iBekgram", statusDrawable);
                 updateStatus(UserConfig.getInstance(currentAccount).getCurrentUser(), false);
             }
             if (folderId == 0) {
@@ -5644,14 +5640,14 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         checkUi_forwardCommentFieldVisible();
         checkUi_searchFieldStyle();
 
-        if (contentView != null && initialDialogsType == 0 && folderId == 0 && !onlySelect) {
+        if (actionBar != null && initialDialogsType == 0 && folderId == 0 && !onlySelect) {
             ghostCornerButton = new ImageView(context);
             ghostCornerButton.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
             ghostCornerButton.setImageResource(R.drawable.msg_stories_stealth);
             android.graphics.drawable.GradientDrawable ghostBg = new android.graphics.drawable.GradientDrawable();
             ghostBg.setShape(android.graphics.drawable.GradientDrawable.OVAL);
             ghostCornerButton.setBackground(ghostBg);
-            ghostCornerButton.setPadding(dp(9), dp(9), dp(9), dp(9));
+            ghostCornerButton.setPadding(dp(7), dp(7), dp(7), dp(7));
             ghostCornerButton.setOnClickListener(v -> {
                 boolean on = !com.ibek.ghost.Ghost.enabled;
                 com.ibek.ghost.Ghost.set(com.ibek.ghost.Ghost.KEY_ENABLED, on);
@@ -5660,12 +5656,36 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                     android.widget.Toast.makeText(getParentActivity(), getString(on ? R.string.GhostCornerOn : R.string.GhostCornerOff), android.widget.Toast.LENGTH_SHORT).show();
                 } catch (Throwable ignore) {}
             });
-            contentView.addView(ghostCornerButton, LayoutHelper.createFrame(42, 42, Gravity.BOTTOM | Gravity.LEFT, 14, 0, 0, 14));
+            // кладём призрака прямо в шапку и прижимаем к концу названия «iBekgram»
+            actionBar.addView(ghostCornerButton, LayoutHelper.createFrame(34, 34, Gravity.TOP | Gravity.LEFT));
             updateGhostCornerButton();
+            try {
+                org.telegram.ui.ActionBar.SimpleTextView tv = actionBar.getTitleTextView();
+                if (tv != null) {
+                    tv.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> positionGhostButton());
+                }
+            } catch (Throwable ignore) {}
+            actionBar.post(this::positionGhostButton);
         }
 
         ViewCompat.setOnApplyWindowInsetsListener(fragmentView, this::onApplyWindowInsets);
         return fragmentView;
+    }
+
+    private void positionGhostButton() {
+        try {
+            if (ghostCornerButton == null || actionBar == null) {
+                return;
+            }
+            org.telegram.ui.ActionBar.SimpleTextView tv = actionBar.getTitleTextView();
+            if (tv == null || tv.getTextWidth() <= 0) {
+                return;
+            }
+            float x = tv.getX() + tv.getTextWidth() + dp(8);
+            float y = tv.getY() + (tv.getHeight() - dp(34)) / 2f;
+            ghostCornerButton.setTranslationX(x);
+            ghostCornerButton.setTranslationY(y);
+        } catch (Throwable ignore) {}
     }
 
     private void updateGhostCornerButton() {
