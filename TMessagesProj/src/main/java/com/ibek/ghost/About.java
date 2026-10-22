@@ -39,6 +39,8 @@ public class About {
         for (String f : FEATURES) {
             sb.append('\n').append(f);
         }
+        sb.append("\n\n");
+        sb.append(LocaleController.getString(R.string.GhostAboutFooter));
         new AlertDialog.Builder(activity)
                 .setTitle(LocaleController.getString(R.string.GhostAboutTitle))
                 .setMessage(sb.toString())
