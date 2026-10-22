@@ -38,6 +38,7 @@ public class Updater {
 
     private static String buildVersion;   // например «1.2-ghost»; null — локальная сборка
     private static long buildTime;        // секунды, когда собрана эта версия
+    private static String buildChangelog = "";  // список изменений этой версии
     private static boolean checking;
 
     static {
@@ -49,8 +50,43 @@ public class Updater {
             if (buildVersion != null) {
                 buildVersion = buildVersion.trim();
             }
+            StringBuilder cl = new StringBuilder();
+            String line;
+            while ((line = r.readLine()) != null) {
+                if (cl.length() > 0) cl.append('\n');
+                cl.append(line);
+            }
+            buildChangelog = cl.toString().trim();
         } catch (Exception e) {
             buildVersion = null;
+        }
+    }
+
+    /** При первом запуске новой версии — окно «Что нового» */
+    public static void maybeShowWhatsNew(Activity activity) {
+        try {
+            if (buildVersion == null || activity == null || activity.isFinishing()) {
+                return;
+            }
+            String shown = prefs().getString("whatsnew_shown", "");
+            if (buildVersion.equals(shown)) {
+                return;
+            }
+            prefs().edit().putString("whatsnew_shown", buildVersion).apply();
+            if (shown.isEmpty()) {
+                // первая установка — без окна, просто запоминаем версию
+                return;
+            }
+            String text = buildChangelog.isEmpty()
+                    ? LocaleController.getString(R.string.GhostWhatsNewEmpty)
+                    : buildChangelog;
+            new AlertDialog.Builder(activity)
+                    .setTitle(LocaleController.formatString(R.string.GhostWhatsNewTitle, buildVersion))
+                    .setMessage(text)
+                    .setPositiveButton(LocaleController.getString(R.string.OK), null)
+                    .show();
+        } catch (Throwable e) {
+            FileLog.e(e);
         }
     }
 

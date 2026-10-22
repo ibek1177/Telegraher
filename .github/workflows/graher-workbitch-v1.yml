@@ -104,9 +104,16 @@ jobs:
                     sed -i "s/RELEASE_KEY_ALIAS=androidkey/RELEASE_KEY_ALIAS=$GRAHER_RELEASE_KEY_ALIAS/g" /home/runner/work/Telegraher/Telegraher/gradle.properties
                     sed -i "s/RELEASE_KEY_PASSWORD=android/RELEASE_KEY_PASSWORD=$GRAHER_RELEASE_KEY_PASSWORD/g" /home/runner/work/Telegraher/Telegraher/gradle.properties
             -   name: Write build info for updater
+                env:
+                    GHOST_VER: ${{inputs.graher-version}}
+                    GHOST_CHANGES: ${{inputs.graher-changes}}
                 run: |
                     mkdir -p TMessagesProj/src/main/assets
-                    printf '%s\n%s\n' "${{inputs.graher-version}}" "$(date +%s)" > TMessagesProj/src/main/assets/ghost_build.txt
+                    {
+                      printf '%s\n' "$GHOST_VER"
+                      printf '%s\n' "$(date +%s)"
+                      printf '%s\n' "$GHOST_CHANGES"
+                    } > TMessagesProj/src/main/assets/ghost_build.txt
                     cat TMessagesProj/src/main/assets/ghost_build.txt
             -   name: Build APK
                 run: gradle :TMessagesProj_AppStandalone:assembleStandalone

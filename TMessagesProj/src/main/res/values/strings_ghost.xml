@@ -59,4 +59,9 @@
     <string name="GhostReminderChannel">Напоминания</string>
     <string name="GhostReminderTitle">Напоминание</string>
     <string name="GhostReminderEmpty">Сообщение без текста</string>
+    <string name="GhostWhatsNewTitle">Что нового в %1$s</string>
+    <string name="GhostWhatsNewEmpty">Мелкие улучшения и исправления.</string>
+    <string name="GhostAboutTitle">О программе</string>
+    <string name="GhostAboutVersion">Версия: %1$s</string>
+    <string name="GhostAboutFeatures">Наши фишки:</string>
 </resources>

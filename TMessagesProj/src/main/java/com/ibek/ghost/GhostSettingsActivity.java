@@ -87,6 +87,13 @@ public class GhostSettingsActivity extends BaseFragment {
         extraInfo.setText(LocaleController.getString(R.string.GhostExtrasInfo));
         list.addView(extraInfo);
 
+        // О программе
+        org.telegram.ui.Cells.TextCell aboutCell = new org.telegram.ui.Cells.TextCell(context);
+        aboutCell.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
+        aboutCell.setTextAndIcon(LocaleController.getString(R.string.GhostAboutTitle), R.drawable.msg_info, false);
+        aboutCell.setOnClickListener(v -> com.ibek.ghost.About.show(this));
+        list.addView(aboutCell);
+
         updateEnabled();
 
         fragmentView = scroll;
