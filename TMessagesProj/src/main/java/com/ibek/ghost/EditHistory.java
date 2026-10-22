@@ -38,6 +38,48 @@ public class EditHistory {
 
     private static final boolean[] tableReady = new boolean[64];
 
+    // В памяти: у каких сообщений есть сохранённая история (чтобы показывать пункт меню только когда она реально есть).
+    // Ключ: dialogId, значение — набор mid.
+    private static final java.util.concurrent.ConcurrentHashMap<Long, java.util.Set<Integer>> index = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final java.util.Set<Long> preloaded = java.util.Collections.synchronizedSet(new java.util.HashSet<>());
+
+    private static void remember(long dialogId, int mid) {
+        index.computeIfAbsent(dialogId, k -> java.util.Collections.synchronizedSet(new java.util.HashSet<>())).add(mid);
+    }
+
+    /** Быстрая синхронная проверка: есть ли у этого сообщения сохранённая прежняя версия */
+    public static boolean has(long dialogId, int mid) {
+        java.util.Set<Integer> set = index.get(dialogId);
+        return set != null && set.contains(mid);
+    }
+
+    /** Подгрузить в память список сообщений с историей для чата (вызывать при открытии чата) */
+    public static void preload(int account, long dialogId) {
+        if (!preloaded.add(dialogId)) {
+            return;
+        }
+        MessagesStorage storage = MessagesStorage.getInstance(account);
+        storage.getStorageQueue().postRunnable(() -> {
+            SQLiteDatabase db = storage.getDatabase();
+            SQLiteCursor cursor = null;
+            try {
+                if (db != null) {
+                    ensureTable(account, db);
+                    cursor = db.queryFinalized(String.format(Locale.US, "SELECT DISTINCT mid FROM ghost_edit_history WHERE uid = %d", dialogId));
+                    while (cursor.next()) {
+                        remember(dialogId, cursor.intValue(0));
+                    }
+                }
+            } catch (Exception e) {
+                FileLog.e(e);
+            } finally {
+                if (cursor != null) {
+                    cursor.dispose();
+                }
+            }
+        });
+    }
+
     private static void ensureTable(int account, SQLiteDatabase db) throws Exception {
         if (account >= 0 && account < tableReady.length && tableReady[account]) {
             return;
@@ -85,6 +127,7 @@ public class EditHistory {
                     st.bindString(4, oldText);
                     st.step();
                     st.dispose();
+                    remember(dialogId, msg.id);
                 }
             } catch (Exception e) {
                 FileLog.e(e);

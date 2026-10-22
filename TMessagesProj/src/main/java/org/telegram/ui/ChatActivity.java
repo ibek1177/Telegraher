@@ -29593,6 +29593,9 @@ public class ChatActivity extends BaseFragment implements
         super.onResume();
         checkShowBlur(false);
         activityResumeTime = System.currentTimeMillis();
+        if (com.ibek.ghost.Ghost.editHistory && dialog_id != 0) {
+            com.ibek.ghost.EditHistory.preload(currentAccount, dialog_id);
+        }
         if (openImport && getSendMessagesHelper().getImportingHistory(dialog_id) != null) {
             ImportingAlert alert = new ImportingAlert(getParentActivity(), null, this, themeDelegate);
             alert.setOnHideListener(dialog -> {
@@ -30830,7 +30833,8 @@ public class ChatActivity extends BaseFragment implements
             }
 
             if (com.ibek.ghost.Ghost.editHistory && selectedObject != null && selectedObject.messageOwner != null
-                    && (selectedObject.messageOwner.flags & TLRPC.MESSAGE_FLAG_EDITED) != 0 && !options.contains(OPTION_GHOST_EDIT_HISTORY)) {
+                    && (selectedObject.messageOwner.flags & TLRPC.MESSAGE_FLAG_EDITED) != 0 && !options.contains(OPTION_GHOST_EDIT_HISTORY)
+                    && com.ibek.ghost.EditHistory.has(selectedObject.getDialogId(), selectedObject.getId())) {
                 items.add(LocaleController.getString(R.string.GhostEditHistoryMenu));
                 options.add(OPTION_GHOST_EDIT_HISTORY);
                 icons.add(R.drawable.msg_recent);
