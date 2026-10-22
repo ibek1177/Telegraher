@@ -78,6 +78,7 @@
                      tools:ignore="BackgroundLocationPolicy"/>
 
     <queries>
+        <package android:name="app.saver"/>
         <package android:name="com.google.android.apps.maps"/>
         <intent>
             <action android:name="android.intent.action.VIEW"/>
