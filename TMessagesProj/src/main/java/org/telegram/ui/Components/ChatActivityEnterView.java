@@ -639,6 +639,7 @@ public class ChatActivityEnterView extends FrameLayout implements
     @Nullable
     private ImageView reactionsButton;
     public FrameLayout messageEditTextContainer;
+    private android.widget.TextView calcTotalView; // iBekgram: плашка «Итого»
     public FrameLayout textFieldContainer;
     public FrameLayout sendButtonContainer;
     private ImageView sendOutlineView;
@@ -5762,6 +5763,19 @@ public class ChatActivityEnterView extends FrameLayout implements
         messageEditText.setHandlesColor(getThemedColor(Theme.key_chat_TextSelectionCursor));
         messageEditTextContainer.addView(messageEditText, 1, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.BOTTOM, 52, 0, isChat ? 50 : 2, 1.5f));
 
+        // iBekgram: серая плашка «Итого» в уголке поля ввода — живой подсчёт сумм
+        calcTotalView = new android.widget.TextView(getContext());
+        calcTotalView.setTextSize(android.util.TypedValue.COMPLEX_UNIT_DIP, 12);
+        calcTotalView.setTextColor(getThemedColor(Theme.key_chat_messagePanelHint));
+        calcTotalView.setPadding(dp(8), dp(2), dp(8), dp(2));
+        calcTotalView.setSingleLine(true);
+        calcTotalView.setVisibility(GONE);
+        android.graphics.drawable.GradientDrawable calcBg = new android.graphics.drawable.GradientDrawable();
+        calcBg.setCornerRadius(dp(10));
+        calcBg.setColor(0x33000000);
+        calcTotalView.setBackground(calcBg);
+        messageEditTextContainer.addView(calcTotalView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.TOP | Gravity.RIGHT, 0, 4, isChat ? 54 : 6, 0));
+
         richDraftPreview = new RichMessageLayout.PreviewView(getContext(), currentAccount, resourcesProvider);
         richDraftPreview.setAllowActions(false);
         richDraftPreview.setMaxHeight(dp(150));
@@ -5999,6 +6013,14 @@ public class ChatActivityEnterView extends FrameLayout implements
             }
         });
         messageEditText.addTextChangedListener(new EditTextSuggestionsFix());
+        // iBekgram: обновляем «Итого» при каждом изменении текста
+        messageEditText.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int st, int c, int a) {}
+            @Override public void onTextChanged(CharSequence s, int st, int b, int c) {}
+            @Override public void afterTextChanged(Editable s) {
+                try { updateCalcTotal(s); } catch (Throwable ignore) {}
+            }
+        });
         messageEditText.setEnabled(messageEditTextEnabled);
         if (messageEditTextWatchers != null) {
             for (TextWatcher textWatcher : messageEditTextWatchers) {
@@ -6086,6 +6108,24 @@ public class ChatActivityEnterView extends FrameLayout implements
                 }
             })
             .start();
+    }
+
+    // iBekgram: показать/спрятать «Итого» по содержимому поля
+    private void updateCalcTotal(CharSequence text) {
+        if (calcTotalView == null) {
+            return;
+        }
+        String label = com.ibek.ghost.Calc.totalLabel(text);
+        if (label == null) {
+            if (calcTotalView.getVisibility() != GONE) {
+                calcTotalView.setVisibility(GONE);
+            }
+        } else {
+            calcTotalView.setText(label);
+            if (calcTotalView.getVisibility() != VISIBLE) {
+                calcTotalView.setVisibility(VISIBLE);
+            }
+        }
     }
 
     public void addTextChangedListener(TextWatcher textWatcher) {
