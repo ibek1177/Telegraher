@@ -322,7 +322,29 @@ public class DialogStoriesCell extends FrameLayout implements NotificationCenter
         telegramLogoView = new ImageView(context);
         telegramLogoView.setContentDescription(getString(R.string.AppName));
         telegramLogoView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-        telegramLogoView.setImageResource(R.drawable.telegram_logo_2);
+        // iBekgram: вместо картинки-логотипа Telegram рисуем своё имя текстом.
+        // Текст белый — внешний setColorFilter(getTextLogoColor(), MULTIPLY) перекрасит его под тему.
+        telegramLogoView.setImageDrawable(new android.graphics.drawable.Drawable() {
+            private final android.graphics.Paint p = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
+            { p.setColor(0xFFFFFFFF); p.setTypeface(AndroidUtilities.bold()); }
+            @Override public int getIntrinsicWidth() { return dp(90); }
+            @Override public int getIntrinsicHeight() { return dp(22); }
+            @Override public void draw(android.graphics.Canvas c) {
+                android.graphics.Rect b = getBounds();
+                if (b.width() <= 0 || b.height() <= 0) { return; }
+                String s = "iBekgram";
+                float ts = dp(19);
+                p.setTextSize(ts);
+                float w = p.measureText(s);
+                if (w > b.width()) { p.setTextSize(ts * b.width() / w); }
+                android.graphics.Paint.FontMetrics fm = p.getFontMetrics();
+                float y = b.centerY() - (fm.ascent + fm.descent) / 2f;
+                c.drawText(s, b.left, y, p);
+            }
+            @Override public void setAlpha(int a) { p.setAlpha(a); }
+            @Override public void setColorFilter(android.graphics.ColorFilter cf) { p.setColorFilter(cf); }
+            @Override public int getOpacity() { return android.graphics.PixelFormat.TRANSLUCENT; }
+        });
         telegramLogoView.setColorFilter(getTextLogoColor(), PorterDuff.Mode.MULTIPLY);
         telegramLogoView.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
         telegramLogoView.setFocusableInTouchMode(true);

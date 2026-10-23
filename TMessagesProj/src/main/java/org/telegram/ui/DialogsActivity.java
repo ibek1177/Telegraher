@@ -5681,7 +5681,8 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             if (tv == null || tv.getTextWidth() <= 0) {
                 return;
             }
-            float x = tv.getX() + tv.getTextWidth() + dp(8);
+            // отступаем и за текст actionBar, и за картинку-логотип (90dp) в сторис-ячейке, плюс зазор
+            float x = tv.getX() + Math.max(tv.getTextWidth(), dp(92)) + dp(12);
             float y = tv.getY() + (tv.getHeight() - dp(34)) / 2f;
             ghostCornerButton.setTranslationX(x);
             ghostCornerButton.setTranslationY(y);
