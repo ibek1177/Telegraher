@@ -4049,6 +4049,8 @@ public class ChatActivity extends BaseFragment implements
                     presentFragment(TopicCreateFragment.create(-dialog_id, 0).setOpenInChatActivity(ChatActivity.this));
                 } else if (id == 950) {
                     showGhostChatDialog();
+                } else if (id == 951) {
+                    showCardsPicker();
                 } else if (id == 888) {
                     dumpCanvas();
                 } else if (id == 889) {
@@ -4507,6 +4509,7 @@ public class ChatActivity extends BaseFragment implements
         }
         if (headerItem != null && dialog_id != 0 && chatMode == 0) {
             headerItem.addSubItem(950, R.drawable.msg_stories_stealth, LocaleController.getString(R.string.GhostChatMenu));
+            headerItem.addSubItem(951, R.drawable.msg_copy, LocaleController.getString(R.string.GhostCardsMenu));
         }
 
         actionModeViews.clear();
@@ -33071,6 +33074,68 @@ public class ChatActivity extends BaseFragment implements
             }
         }
         MediaController.saveFile(path, getParentActivity(), messageObject.isVideo() ? 1 : 0, null, null);
+    }
+
+    // iBekgram: выбор сохранённой карты и вставка в поле ввода
+    private void showCardsPicker() {
+        if (getParentActivity() == null) {
+            return;
+        }
+        final java.util.ArrayList<Integer> idxs = new java.util.ArrayList<>();
+        final java.util.ArrayList<CharSequence> titles = new java.util.ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            if (com.ibek.ghost.Ghost.hasCard(i)) {
+                idxs.add(i);
+                String label = com.ibek.ghost.Ghost.cardLabel(i);
+                String number = com.ibek.ghost.Ghost.cardNumber(i);
+                titles.add((label == null || label.isEmpty()) ? number : (label + "  " + number));
+            }
+        }
+        AlertDialog.Builder b = new AlertDialog.Builder(getParentActivity());
+        b.setTitle(LocaleController.getString(R.string.GhostCardsMenu));
+        if (idxs.isEmpty()) {
+            b.setMessage(LocaleController.getString(R.string.GhostCardsEmpty));
+            b.setPositiveButton(LocaleController.getString(R.string.OK), null);
+            showDialog(b.create());
+            return;
+        }
+        b.setItems(titles.toArray(new CharSequence[0]), (dialog, which) -> {
+            if (which >= 0 && which < idxs.size()) {
+                insertCard(idxs.get(which));
+            }
+        });
+        b.setNegativeButton(LocaleController.getString(R.string.Cancel), null);
+        showDialog(b.create());
+    }
+
+    private void insertCard(int i) {
+        try {
+            String text = com.ibek.ghost.Ghost.cardInsertText(i);
+            if (text == null || text.isEmpty()) {
+                return;
+            }
+            if (chatActivityEnterView != null && chatActivityEnterView.messageEditText != null) {
+                org.telegram.ui.Components.EditTextCaption field = chatActivityEnterView.messageEditText;
+                field.requestFocus();
+                int start = field.getSelectionStart();
+                int end = field.getSelectionEnd();
+                if (start < 0) {
+                    start = field.length();
+                }
+                if (end < 0) {
+                    end = start;
+                }
+                int from = Math.min(start, end);
+                int to = Math.max(start, end);
+                field.getText().replace(from, to, text);
+            }
+            AndroidUtilities.addToClipboard(text);
+            if (getParentActivity() != null) {
+                android.widget.Toast.makeText(getParentActivity(), LocaleController.getString(R.string.GhostCardsCopied), android.widget.Toast.LENGTH_SHORT).show();
+            }
+        } catch (Throwable e) {
+            FileLog.e(e);
+        }
     }
 
     private void showGhostChatDialog() {

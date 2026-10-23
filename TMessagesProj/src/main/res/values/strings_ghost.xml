@@ -71,4 +71,13 @@
     <string name="GhostAppTitle">Название приложения</string>
     <string name="GhostAppTitleInfo">Что напишешь — то и будет красоваться в шапке вместо «Telegram». Хоть своё имя, хоть «Госуслуги», хоть что угодно. Пусто — вернётся iBekgram.</string>
     <string name="GhostAppTitleReset">Сбросить</string>
+    <string name="GhostCardsMenu">Карты</string>
+    <string name="GhostCardsTitle">Карты (реквизиты)</string>
+    <string name="GhostCardsInfo">Сохрани до 3 карт. В чате: меню ⋮ сверху → «Карты» → тап по карте — номер (и ФИО, если указано) вставляется в сообщение и копируется в буфер.</string>
+    <string name="GhostCardEmpty">не задана</string>
+    <string name="GhostCardLabelHint">Название (для себя, напр. Humo основная)</string>
+    <string name="GhostCardNumberHint">Номер карты</string>
+    <string name="GhostCardHolderHint">ФИО получателя (по желанию)</string>
+    <string name="GhostCardsEmpty">Карты ещё не добавлены. Настройки → Режим призрака → Карты.</string>
+    <string name="GhostCardsCopied">Карта вставлена и скопирована</string>
 </resources>

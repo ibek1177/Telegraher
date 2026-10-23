@@ -90,6 +90,45 @@ public class Ghost {
         load();
     }
 
+    // ---- Карты (реквизиты): до 3 штук, i = 0..2 ----
+
+    public static String cardLabel(int i) {
+        return prefs().getString("card" + i + "_label", "");
+    }
+
+    public static String cardNumber(int i) {
+        return prefs().getString("card" + i + "_number", "");
+    }
+
+    public static String cardHolder(int i) {
+        return prefs().getString("card" + i + "_holder", "");
+    }
+
+    /** Есть ли у слота номер карты */
+    public static boolean hasCard(int i) {
+        String n = cardNumber(i);
+        return n != null && !n.trim().isEmpty();
+    }
+
+    public static void setCard(int i, String label, String number, String holder) {
+        prefs().edit()
+                .putString("card" + i + "_label", label == null ? "" : label.trim())
+                .putString("card" + i + "_number", number == null ? "" : number.trim())
+                .putString("card" + i + "_holder", holder == null ? "" : holder.trim())
+                .apply();
+    }
+
+    /** Текст для вставки: номер + (ФИО получателя новой строкой, если задано) */
+    public static String cardInsertText(int i) {
+        String number = cardNumber(i);
+        number = number == null ? "" : number.trim();
+        String holder = cardHolder(i);
+        if (holder != null && !holder.trim().isEmpty()) {
+            return number + "\n" + holder.trim();
+        }
+        return number;
+    }
+
     public static boolean get(String key) {
         switch (key) {
             case KEY_ENABLED: return enabled;

@@ -103,6 +103,27 @@ public class GhostSettingsActivity extends BaseFragment {
         titleInfo.setText(LocaleController.getString(R.string.GhostAppTitleInfo));
         list.addView(titleInfo);
 
+        // Карты (реквизиты)
+        HeaderCell cardsHeader = new HeaderCell(context);
+        cardsHeader.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
+        cardsHeader.setText(LocaleController.getString(R.string.GhostCardsTitle));
+        list.addView(cardsHeader);
+
+        final org.telegram.ui.Cells.TextCell[] cardCells = new org.telegram.ui.Cells.TextCell[3];
+        for (int i = 0; i < 3; i++) {
+            final int idx = i;
+            org.telegram.ui.Cells.TextCell c = new org.telegram.ui.Cells.TextCell(context);
+            c.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
+            cardCells[idx] = c;
+            refreshCardCell(c, idx);
+            c.setOnClickListener(v -> showCardEditDialog(context, cardCells[idx], idx));
+            list.addView(c);
+        }
+
+        TextInfoPrivacyCell cardsInfo = new TextInfoPrivacyCell(context);
+        cardsInfo.setText(LocaleController.getString(R.string.GhostCardsInfo));
+        list.addView(cardsInfo);
+
         // О программе
         org.telegram.ui.Cells.TextCell aboutCell = new org.telegram.ui.Cells.TextCell(context);
         aboutCell.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
@@ -185,6 +206,75 @@ public class GhostSettingsActivity extends BaseFragment {
         try {
             et.requestFocus();
             org.telegram.messenger.AndroidUtilities.showKeyboard(et);
+        } catch (Throwable ignore) {
+        }
+    }
+
+    private void refreshCardCell(org.telegram.ui.Cells.TextCell cell, int i) {
+        String label = Ghost.cardLabel(i);
+        String number = Ghost.cardNumber(i);
+        String title = (label == null || label.isEmpty()) ? ("Карта " + (i + 1)) : label;
+        String value = (number == null || number.isEmpty()) ? LocaleController.getString(R.string.GhostCardEmpty) : number;
+        cell.setTextAndValueAndIcon(title, value, R.drawable.msg_copy, i < 2);
+    }
+
+    private org.telegram.ui.Components.EditTextBoldCursor makeCardField(Context context, String value, int hintRes, boolean numberMono) {
+        org.telegram.ui.Components.EditTextBoldCursor et = new org.telegram.ui.Components.EditTextBoldCursor(context);
+        et.setText(value == null ? "" : value);
+        et.setHint(LocaleController.getString(hintRes));
+        et.setSingleLine(true);
+        et.setTextColor(Theme.getColor(Theme.key_dialogTextBlack));
+        et.setHintTextColor(Theme.getColor(Theme.key_dialogTextHint));
+        et.setCursorColor(Theme.getColor(Theme.key_dialogTextBlack));
+        et.setCursorSize(org.telegram.messenger.AndroidUtilities.dp(20));
+        et.setCursorWidth(1.5f);
+        if (numberMono) {
+            et.setTypeface(android.graphics.Typeface.MONOSPACE);
+            et.setInputType(android.text.InputType.TYPE_CLASS_PHONE);
+        }
+        try {
+            et.setSelection(et.getText().length());
+        } catch (Throwable ignore) {
+        }
+        return et;
+    }
+
+    private static String fieldText(org.telegram.ui.Components.EditTextBoldCursor et) {
+        return et == null || et.getText() == null ? "" : et.getText().toString();
+    }
+
+    private void showCardEditDialog(Context context, org.telegram.ui.Cells.TextCell cell, int i) {
+        LinearLayout box = new LinearLayout(context);
+        box.setOrientation(LinearLayout.VERTICAL);
+        int pad = org.telegram.messenger.AndroidUtilities.dp(22);
+        box.setPadding(pad, org.telegram.messenger.AndroidUtilities.dp(6), pad, 0);
+
+        final org.telegram.ui.Components.EditTextBoldCursor labelEt = makeCardField(context, Ghost.cardLabel(i), R.string.GhostCardLabelHint, false);
+        final org.telegram.ui.Components.EditTextBoldCursor numberEt = makeCardField(context, Ghost.cardNumber(i), R.string.GhostCardNumberHint, true);
+        final org.telegram.ui.Components.EditTextBoldCursor holderEt = makeCardField(context, Ghost.cardHolder(i), R.string.GhostCardHolderHint, false);
+
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        lp.bottomMargin = org.telegram.messenger.AndroidUtilities.dp(8);
+        box.addView(labelEt, lp);
+        box.addView(numberEt, lp);
+        box.addView(holderEt, lp);
+
+        org.telegram.ui.ActionBar.AlertDialog.Builder b = new org.telegram.ui.ActionBar.AlertDialog.Builder(context);
+        b.setTitle("Карта " + (i + 1));
+        b.setView(box);
+        b.setPositiveButton(LocaleController.getString(R.string.Save), (d, w) -> {
+            Ghost.setCard(i, fieldText(labelEt), fieldText(numberEt), fieldText(holderEt));
+            refreshCardCell(cell, i);
+        });
+        b.setNeutralButton(LocaleController.getString(R.string.Clear), (d, w) -> {
+            Ghost.setCard(i, "", "", "");
+            refreshCardCell(cell, i);
+        });
+        b.setNegativeButton(LocaleController.getString(R.string.Cancel), null);
+        showDialog(b.create());
+        try {
+            numberEt.requestFocus();
+            org.telegram.messenger.AndroidUtilities.showKeyboard(numberEt);
         } catch (Throwable ignore) {
         }
     }
