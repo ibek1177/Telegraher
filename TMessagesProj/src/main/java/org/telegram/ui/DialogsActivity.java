@@ -5656,10 +5656,13 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                     android.widget.Toast.makeText(getParentActivity(), getString(on ? R.string.GhostCornerOn : R.string.GhostCornerOff), android.widget.Toast.LENGTH_SHORT).show();
                 } catch (Throwable ignore) {}
             });
-            // кладём призрака прямо в шапку и прижимаем к концу названия «iBekgram»
+            // кладём призрака в шапку; позицию (слева от лупы) считаем в positionGhostButton
             actionBar.addView(ghostCornerButton, LayoutHelper.createFrame(34, 34, Gravity.TOP | Gravity.LEFT));
             updateGhostCornerButton();
             try {
+                if (actionBar.menu != null) {
+                    actionBar.menu.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> positionGhostButton());
+                }
                 org.telegram.ui.ActionBar.SimpleTextView tv = actionBar.getTitleTextView();
                 if (tv != null) {
                     tv.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> positionGhostButton());
@@ -5677,13 +5680,15 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             if (ghostCornerButton == null || actionBar == null) {
                 return;
             }
-            org.telegram.ui.ActionBar.SimpleTextView tv = actionBar.getTitleTextView();
-            if (tv == null || tv.getTextWidth() <= 0) {
+            // ставим призрака слева от лупы (меню поиска) и ровно по её вертикали
+            org.telegram.ui.ActionBar.ActionBarMenu menu = actionBar.menu;
+            if (menu == null || menu.getWidth() <= 0 || menu.getHeight() <= 0) {
                 return;
             }
-            // отступаем и за текст actionBar, и за картинку-логотип (90dp) в сторис-ячейке, плюс зазор
-            float x = tv.getX() + Math.max(tv.getTextWidth(), dp(92)) + dp(12);
-            float y = tv.getY() + (tv.getHeight() - dp(34)) / 2f;
+            float x = menu.getX() - dp(42);
+            float y = menu.getY() + (menu.getHeight() - dp(34)) / 2f;
+            // не даём уехать за левый край, если меню вдруг раскрылось на всю ширину (режим поиска)
+            ghostCornerButton.setVisibility(x < 0 ? android.view.View.GONE : android.view.View.VISIBLE);
             ghostCornerButton.setTranslationX(x);
             ghostCornerButton.setTranslationY(y);
         } catch (Throwable ignore) {}
