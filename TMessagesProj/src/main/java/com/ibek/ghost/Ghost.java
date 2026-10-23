@@ -33,6 +33,8 @@ public class Ghost {
     public static final String KEY_READ_ON_REPLY = "read_on_reply";
     public static final String KEY_HIDE_ALL_TAB = "hide_all_tab";
     public static final String KEY_EDIT_HISTORY = "edit_history";
+    public static final String KEY_APP_TITLE = "app_title";
+    public static final String DEFAULT_APP_TITLE = "iBekgram";
 
     public static volatile boolean enabled;
     public static volatile boolean hideRead;
@@ -43,6 +45,8 @@ public class Ghost {
     public static volatile boolean readOnReply;
     public static volatile boolean hideAllTab;
     public static volatile boolean editHistory;
+    /** Название приложения в шапке (любое, что впишет пользователь) */
+    public static volatile String appTitle = DEFAULT_APP_TITLE;
 
     /** Чаты, которые пользователь сам отметил прочитанными: dialogId → до какого момента разрешено */
     private static final ConcurrentHashMap<Long, Long> allowedRead = new ConcurrentHashMap<>();
@@ -66,6 +70,24 @@ public class Ghost {
         readOnReply = p.getBoolean(KEY_READ_ON_REPLY, true);
         hideAllTab = p.getBoolean(KEY_HIDE_ALL_TAB, false);
         editHistory = p.getBoolean(KEY_EDIT_HISTORY, true);
+        String t = p.getString(KEY_APP_TITLE, DEFAULT_APP_TITLE);
+        appTitle = (t == null || t.trim().isEmpty()) ? DEFAULT_APP_TITLE : t;
+    }
+
+    /** Текущее название для шапки — никогда не пустое */
+    public static String appTitle() {
+        String t = appTitle;
+        return (t == null || t.trim().isEmpty()) ? DEFAULT_APP_TITLE : t;
+    }
+
+    /** Сменить название приложения в шапке. Пустая строка вернёт значение по умолчанию. */
+    public static void setAppTitle(String v) {
+        if (v == null) {
+            v = "";
+        }
+        v = v.trim();
+        prefs().edit().putString(KEY_APP_TITLE, v).apply();
+        load();
     }
 
     public static boolean get(String key) {

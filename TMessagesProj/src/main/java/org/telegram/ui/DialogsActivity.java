@@ -3518,8 +3518,8 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             } else {
                 statusDrawable = new AnimatedEmojiDrawable.SwapAnimatedEmojiDrawable(null, dp(26));
                 statusDrawable.center = true;
-                // iBekgram: показываем своё имя текстом вместо логотипа Telegram
-                actionBar.setTitle("iBekgram", statusDrawable);
+                // iBekgram: показываем своё (настраиваемое) имя текстом вместо логотипа Telegram
+                actionBar.setTitle(com.ibek.ghost.Ghost.appTitle(), statusDrawable);
                 updateStatus(UserConfig.getInstance(currentAccount).getCurrentUser(), false);
             }
             if (folderId == 0) {
@@ -7089,6 +7089,15 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
     @Override
     public void onResume() {
         super.onResume();
+        // обновляем название в шапке — вдруг поменяли в настройках призрака
+        try {
+            if (actionBar != null && statusDrawable != null && initialDialogsType == 0 && folderId == 0 && communityId == 0 && !onlySelect && TextUtils.isEmpty(searchString)) {
+                actionBar.setTitle(com.ibek.ghost.Ghost.appTitle(), statusDrawable);
+            }
+            if (dialogStoriesCell != null) {
+                dialogStoriesCell.refreshAppTitle();
+            }
+        } catch (Throwable ignore) {}
         if (dialogStoriesCell != null) {
             dialogStoriesCell.onResume();
         }

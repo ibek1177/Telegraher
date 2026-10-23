@@ -332,7 +332,7 @@ public class DialogStoriesCell extends FrameLayout implements NotificationCenter
             @Override public void draw(android.graphics.Canvas c) {
                 android.graphics.Rect b = getBounds();
                 if (b.width() <= 0 || b.height() <= 0) { return; }
-                String s = "iBekgram";
+                String s = com.ibek.ghost.Ghost.appTitle();
                 float ts = dp(19);
                 p.setTextSize(ts);
                 float w = p.measureText(s);
@@ -1277,6 +1277,13 @@ public class DialogStoriesCell extends FrameLayout implements NotificationCenter
     }
 
     EllipsizeSpanAnimator ellipsizeSpanAnimator = new EllipsizeSpanAnimator(this);
+
+    /** Перерисовать название в шапке после смены его пользователем */
+    public void refreshAppTitle() {
+        if (telegramLogoView != null) {
+            telegramLogoView.invalidate();
+        }
+    }
 
     public void setTitleOverlayText(String titleOverlayText, int textId) {
         final CharSequence subtitleToSet;

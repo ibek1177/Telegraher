@@ -87,6 +87,22 @@ public class GhostSettingsActivity extends BaseFragment {
         extraInfo.setText(LocaleController.getString(R.string.GhostExtrasInfo));
         list.addView(extraInfo);
 
+        // Название приложения — любой может вписать своё
+        HeaderCell titleHeader = new HeaderCell(context);
+        titleHeader.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
+        titleHeader.setText(LocaleController.getString(R.string.GhostAppearance));
+        list.addView(titleHeader);
+
+        final org.telegram.ui.Cells.TextCell titleCell = new org.telegram.ui.Cells.TextCell(context);
+        titleCell.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
+        titleCell.setTextAndValueAndIcon(LocaleController.getString(R.string.GhostAppTitle), Ghost.appTitle(), R.drawable.msg_edit, false);
+        titleCell.setOnClickListener(v -> showAppTitleDialog(context, titleCell));
+        list.addView(titleCell);
+
+        TextInfoPrivacyCell titleInfo = new TextInfoPrivacyCell(context);
+        titleInfo.setText(LocaleController.getString(R.string.GhostAppTitleInfo));
+        list.addView(titleInfo);
+
         // О программе
         org.telegram.ui.Cells.TextCell aboutCell = new org.telegram.ui.Cells.TextCell(context);
         aboutCell.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
@@ -133,6 +149,44 @@ public class GhostSettingsActivity extends BaseFragment {
             cell.setChecked(value);
         });
         list.addView(cell);
+    }
+
+    /** Диалог ввода своего названия приложения */
+    private void showAppTitleDialog(Context context, org.telegram.ui.Cells.TextCell cell) {
+        final org.telegram.ui.Components.EditTextBoldCursor et = new org.telegram.ui.Components.EditTextBoldCursor(context);
+        et.setText(Ghost.appTitle());
+        try {
+            et.setSelection(et.getText().length());
+        } catch (Throwable ignore) {
+        }
+        et.setHint(Ghost.DEFAULT_APP_TITLE);
+        et.setSingleLine(true);
+        et.setTextColor(Theme.getColor(Theme.key_dialogTextBlack));
+        et.setHintTextColor(Theme.getColor(Theme.key_dialogTextHint));
+        et.setCursorColor(Theme.getColor(Theme.key_dialogTextBlack));
+        et.setCursorSize(org.telegram.messenger.AndroidUtilities.dp(20));
+        et.setCursorWidth(1.5f);
+        et.setPadding(org.telegram.messenger.AndroidUtilities.dp(24), org.telegram.messenger.AndroidUtilities.dp(10), org.telegram.messenger.AndroidUtilities.dp(24), org.telegram.messenger.AndroidUtilities.dp(10));
+
+        org.telegram.ui.ActionBar.AlertDialog.Builder b = new org.telegram.ui.ActionBar.AlertDialog.Builder(context);
+        b.setTitle(LocaleController.getString(R.string.GhostAppTitle));
+        b.setView(et);
+        b.setPositiveButton(LocaleController.getString(R.string.OK), (d, w) -> {
+            String v = et.getText() == null ? "" : et.getText().toString();
+            Ghost.setAppTitle(v);
+            cell.setTextAndValueAndIcon(LocaleController.getString(R.string.GhostAppTitle), Ghost.appTitle(), R.drawable.msg_edit, false);
+        });
+        b.setNeutralButton(LocaleController.getString(R.string.GhostAppTitleReset), (d, w) -> {
+            Ghost.setAppTitle("");
+            cell.setTextAndValueAndIcon(LocaleController.getString(R.string.GhostAppTitle), Ghost.appTitle(), R.drawable.msg_edit, false);
+        });
+        b.setNegativeButton(LocaleController.getString(R.string.Cancel), null);
+        showDialog(b.create());
+        try {
+            et.requestFocus();
+            org.telegram.messenger.AndroidUtilities.showKeyboard(et);
+        } catch (Throwable ignore) {
+        }
     }
 
     /** Пока главный выключатель выключен, пункты бледные и не нажимаются */
