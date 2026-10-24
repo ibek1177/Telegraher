@@ -80,4 +80,6 @@
     <string name="GhostCardHolderHint">ФИО получателя (по желанию)</string>
     <string name="GhostCardsEmpty">Карты ещё не добавлены. Настройки → Режим призрака → Карты.</string>
     <string name="GhostCardsCopied">Карта вставлена и скопирована</string>
+    <string name="GhostSaverDownload">Скачать «Сохранялку»</string>
+    <string name="GhostSaverDownloadInfo">Отдельное приложение для скачивания видео/фото по ссылке (Instagram, TikTok, YouTube и др.). Откроется страница с APK — скачай и установи. Можно делиться ссылкой с друзьями.</string>
 </resources>

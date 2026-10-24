@@ -124,6 +124,21 @@ public class GhostSettingsActivity extends BaseFragment {
         cardsInfo.setText(LocaleController.getString(R.string.GhostCardsInfo));
         list.addView(cardsInfo);
 
+        // Скачать «Сохранялку»
+        org.telegram.ui.Cells.TextCell saverCell = new org.telegram.ui.Cells.TextCell(context);
+        saverCell.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
+        saverCell.setTextAndIcon(LocaleController.getString(R.string.GhostSaverDownload), R.drawable.msg_download, true);
+        saverCell.setOnClickListener(v -> {
+            if (getParentActivity() != null) {
+                org.telegram.messenger.browser.Browser.openUrlInSystemBrowser(getParentActivity(), "https://github.com/ibek1177/Saver/releases");
+            }
+        });
+        list.addView(saverCell);
+
+        TextInfoPrivacyCell saverInfo = new TextInfoPrivacyCell(context);
+        saverInfo.setText(LocaleController.getString(R.string.GhostSaverDownloadInfo));
+        list.addView(saverInfo);
+
         // О программе
         org.telegram.ui.Cells.TextCell aboutCell = new org.telegram.ui.Cells.TextCell(context);
         aboutCell.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
