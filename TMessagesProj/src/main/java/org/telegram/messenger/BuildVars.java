@@ -42,8 +42,10 @@ public class BuildVars {
     public static final int PIN_MAX_SIZE = 16;
     public static final int KABOOM_PIN_FAILS = 10;
 
-    public static int APP_ID = 4;
-    public static String APP_HASH = "014b35b6184100b085b0d0572f9b5103";
+    // iBekgram: личный api_id/api_hash (my.telegram.org) вместо публичного id 4 —
+    // чтобы сессии не попадали в общую кучу модов и Telegram их не тряс.
+    public static int APP_ID = 27465747;
+    public static String APP_HASH = "09688c0431bc4b7e0af328c1d729a862";
 
     public static String PLAYSTORE_APP_URL = "https://github.com/nikitasius/Telegraher/releases/latest";
     public static String GOOGLE_AUTH_CLIENT_ID = "760348033671-81kmi3pi84p11ub8hp9a1funsv0rn2p9.apps.googleusercontent.com";
