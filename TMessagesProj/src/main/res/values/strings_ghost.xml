@@ -82,4 +82,5 @@
     <string name="GhostCardsCopied">Карта вставлена и скопирована</string>
     <string name="GhostSaverDownload">Скачать «Сохранялку»</string>
     <string name="GhostSaverDownloadInfo">Отдельное приложение для скачивания видео/фото по ссылке (Instagram, TikTok, YouTube и др.). Откроется страница с APK — скачай и установи. Можно делиться ссылкой с друзьями.</string>
+    <string name="GhostNoteMenu">Заметка</string>
 </resources>

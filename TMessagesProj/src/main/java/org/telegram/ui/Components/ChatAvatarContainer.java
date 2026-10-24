@@ -990,12 +990,41 @@ public class ChatAvatarContainer extends FrameLayout implements FactorAnimator.T
     private Drawable verifiedCheck;
 
 
+    // iBekgram: короткая заметка по контакту, показывается в шапке перед статусом
+    private CharSequence ghostNotePrefix;
+    private CharSequence lastRawSubtitle;
+
+    public void setGhostNote(CharSequence note) {
+        if (note != null && note.length() == 0) {
+            note = null;
+        }
+        String a = ghostNotePrefix == null ? null : ghostNotePrefix.toString();
+        String b = note == null ? null : note.toString();
+        if ((a == null && b == null) || (a != null && a.equals(b))) {
+            return;
+        }
+        ghostNotePrefix = note;
+        setSubtitle(lastRawSubtitle);
+    }
+
+    private CharSequence withGhostNote(CharSequence value) {
+        if (ghostNotePrefix == null || ghostNotePrefix.length() == 0) {
+            return value;
+        }
+        if (value != null && value.length() > 0) {
+            return "📌 " + ghostNotePrefix + "  ·  " + value;
+        }
+        return "📌 " + ghostNotePrefix;
+    }
+
     public void setSubtitle(CharSequence value) {
+        lastRawSubtitle = value;
         if (lastSubtitle == null) {
+            CharSequence shown = withGhostNote(value);
             if (subtitleTextView != null) {
-                subtitleTextView.setText(value);
+                subtitleTextView.setText(shown);
             } else if (animatedSubtitleTextView != null) {
-                animatedSubtitleTextView.setText(value);
+                animatedSubtitleTextView.setText(shown);
             }
         } else {
             lastSubtitle = value;

@@ -4051,6 +4051,8 @@ public class ChatActivity extends BaseFragment implements
                     showGhostChatDialog();
                 } else if (id == 951) {
                     showCardsPicker();
+                } else if (id == 953) {
+                    openContactNote();
                 } else if (id == 888) {
                     dumpCanvas();
                 } else if (id == 889) {
@@ -4510,6 +4512,9 @@ public class ChatActivity extends BaseFragment implements
         if (headerItem != null && dialog_id != 0 && chatMode == 0) {
             headerItem.addSubItem(950, R.drawable.msg_stories_stealth, LocaleController.getString(R.string.GhostChatMenu));
             headerItem.addSubItem(951, R.drawable.msg_copy, LocaleController.getString(R.string.GhostCardsMenu));
+            if (currentUser != null && !UserObject.isUserSelf(currentUser) && !currentUser.bot) {
+                headerItem.addSubItem(953, R.drawable.msg_edit, LocaleController.getString(R.string.GhostNoteMenu));
+            }
         }
 
         actionModeViews.clear();
@@ -23809,6 +23814,7 @@ public class ChatActivity extends BaseFragment implements
                 updateGreetingLock();
                 updateGreetInfo();
                 updateBottomOverlay();
+                updateGhostNote(); // iBekgram: обновить заметку в шапке
                 checkThemeEmoticonOrWallpaper();
                 if (chatActivityEnterView != null) {
                     chatActivityEnterView.checkChannelRights();
@@ -29596,6 +29602,7 @@ public class ChatActivity extends BaseFragment implements
         super.onResume();
         checkShowBlur(false);
         activityResumeTime = System.currentTimeMillis();
+        updateGhostNote(); // iBekgram: обновить заметку в шапке (вдруг изменили в профиле)
         if (com.ibek.ghost.Ghost.editHistory && dialog_id != 0) {
             com.ibek.ghost.EditHistory.preload(currentAccount, dialog_id);
         }
@@ -33074,6 +33081,41 @@ public class ChatActivity extends BaseFragment implements
             }
         }
         MediaController.saveFile(path, getParentActivity(), messageObject.isVideo() ? 1 : 0, null, null);
+    }
+
+    // iBekgram: открыть редактор заметки по контакту (карточка контакта с фокусом на заметке)
+    private void openContactNote() {
+        if (currentUser == null || getParentActivity() == null) {
+            return;
+        }
+        try {
+            Bundle args = new Bundle();
+            args.putLong("user_id", currentUser.id);
+            args.putBoolean("focus_notes", true);
+            presentFragment(new org.telegram.ui.ContactAddActivity(args, themeDelegate));
+        } catch (Throwable e) {
+            FileLog.e(e);
+        }
+    }
+
+    // iBekgram: короткий показ заметки по контакту в шапке чата (полная — в профиле)
+    private void updateGhostNote() {
+        try {
+            if (avatarContainer == null) {
+                return;
+            }
+            CharSequence note = null;
+            if (currentUser != null && userInfo != null && userInfo.note != null && userInfo.note.text != null) {
+                String t = userInfo.note.text.trim().replace('\n', ' ');
+                if (t.length() > 0) {
+                    if (t.length() > 40) {
+                        t = t.substring(0, 40).trim() + "…";
+                    }
+                    note = t;
+                }
+            }
+            avatarContainer.setGhostNote(note);
+        } catch (Throwable ignore) {}
     }
 
     // iBekgram: выбор сохранённой карты и вставка в поле ввода
