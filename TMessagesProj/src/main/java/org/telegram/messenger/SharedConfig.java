@@ -520,16 +520,22 @@ public class SharedConfig {
                     activeAccounts.add(Integer.parseInt(part.trim()));
                 } catch (NumberFormatException ignored) {}
             }
-            return;
         }
-        for (int i = 0; i < 4; i++) {
+        // iBekgram: подстраховка от потери аккаунтов.
+        // Всегда досканируем реально залогиненные аккаунты и вернём их в список —
+        // даже если строка active_accounts затёрлась частичным набором (например,
+        // при жёстком убийстве процесса системой). Правка только ДОБАВЛЯЕТ аккаунты,
+        // убрать ничего не может, поэтому безопасна.
+        boolean recovered = false;
+        for (int i = 0; i < UserConfig.MAX_ACCOUNT_COUNT; i++) {
             UserConfig uc = UserConfig.getInstance(i);
             uc.loadConfig();
-            if (uc.isClientActivated()) {
+            if (uc.isClientActivated() && !activeAccounts.contains(i)) {
                 activeAccounts.add(i);
+                recovered = true;
             }
         }
-        if (!activeAccounts.isEmpty()) {
+        if (!activeAccounts.isEmpty() && (raw.isEmpty() || recovered)) {
             saveAccounts();
         }
     }
