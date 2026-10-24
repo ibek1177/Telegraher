@@ -4301,7 +4301,17 @@ public class AndroidUtilities {
             f = FileLoader.getInstance(message.currentAccount).getPathToMessage(message.messageOwner);
         }
         String mimeType = message.type == MessageObject.TYPE_FILE || message.type == MessageObject.TYPE_TEXT ? message.getMimeType() : null;
-        return openForView(f, message.getFileName(), mimeType, activity, resourcesProvider, restrict);
+        // iBekgram: APK из чатов часто приходят с mime "application/octet-stream" и именем без .apk,
+        // из-за чего подмена MIME не срабатывает и установка падает. Гарантируем расширение .apk
+        // в имени, беря его из имени документа, если надо.
+        String viewName = message.getFileName();
+        try {
+            String docName = message.getDocumentName();
+            if ((viewName == null || !viewName.toLowerCase().endsWith(".apk")) && docName != null && docName.toLowerCase().endsWith(".apk")) {
+                viewName = docName;
+            }
+        } catch (Throwable ignore) {}
+        return openForView(f, viewName, mimeType, activity, resourcesProvider, restrict);
     }
 
     public static boolean openForView(TLRPC.Document document, boolean forceCache, Activity activity) {
