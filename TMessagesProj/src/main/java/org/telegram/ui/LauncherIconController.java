@@ -39,7 +39,11 @@ public class LauncherIconController {
         AQUA("AquaIcon", R.drawable.icon_4_background_sa, R.mipmap.icon_foreground_sa, R.string.AppIconAqua),
         PREMIUM("PremiumIcon", R.drawable.icon_3_background_sa, R.mipmap.icon_3_foreground_sa, R.string.AppIconPremium, true),
         TURBO("TurboIcon", R.drawable.icon_5_background_sa, R.mipmap.icon_5_foreground_sa, R.string.AppIconTurbo, true),
-        NOX("NoxIcon", R.mipmap.icon_2_background_sa, R.mipmap.icon_foreground_sa, R.string.AppIconNox, true);
+        NOX("NoxIcon", R.mipmap.icon_2_background_sa, R.mipmap.icon_foreground_sa, R.string.AppIconNox, true),
+        // iBekgram: свои иконки-призраки
+        IBEK_VIOLET("IbekVioletIcon", R.drawable.ibek_bg_violet, R.drawable.ibek_fg_light, R.string.AppIconIbekViolet),
+        IBEK_NEON("IbekNeonIcon", R.drawable.ibek_bg_neon, R.drawable.ibek_fg_neon, R.string.AppIconIbekNeon),
+        IBEK_FROST("IbekFrostIcon", R.drawable.ibek_bg_frost, R.drawable.ibek_fg_light, R.string.AppIconIbekFrost);
 
         public final String key;
         public final int background;
