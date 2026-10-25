@@ -43,7 +43,8 @@ public class LauncherIconController {
         // iBekgram: свои иконки-призраки
         IBEK_VIOLET("IbekVioletIcon", R.drawable.ibek_bg_violet, R.drawable.ibek_fg_light, R.string.AppIconIbekViolet),
         IBEK_NEON("IbekNeonIcon", R.drawable.ibek_bg_neon, R.drawable.ibek_fg_neon, R.string.AppIconIbekNeon),
-        IBEK_FROST("IbekFrostIcon", R.drawable.ibek_bg_frost, R.drawable.ibek_fg_light, R.string.AppIconIbekFrost);
+        IBEK_FROST("IbekFrostIcon", R.drawable.ibek_bg_frost, R.drawable.ibek_fg_light, R.string.AppIconIbekFrost),
+        IBEK_MONO("IbekMonoIcon", R.drawable.ibek_bg_mono, R.drawable.ibek_fg_mono, R.string.AppIconIbekMono);
 
         public final String key;
         public final int background;
