@@ -5643,6 +5643,20 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         checkUi_forwardCommentFieldVisible();
         checkUi_searchFieldStyle();
 
+        // Seasonal decorations are isolated from Telegram messaging and privacy state.
+        // Disabled by default; enable through the holiday_2027 preferences.
+        if (context.getSharedPreferences("holiday_2027", Context.MODE_PRIVATE)
+                .getBoolean("decorations_enabled", false)) {
+            org.telegram.ui.Components.HolidaySnowView snow =
+                    new org.telegram.ui.Components.HolidaySnowView(context);
+            snow.setClickable(false);
+            contentView.addView(snow, LayoutHelper.createFrameMatchParent());
+            org.telegram.ui.Components.HolidayDecorationsView garland =
+                    new org.telegram.ui.Components.HolidayDecorationsView(context);
+            contentView.addView(garland,
+                    LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 65, Gravity.TOP));
+        }
+
         ViewCompat.setOnApplyWindowInsetsListener(fragmentView, this::onApplyWindowInsets);
         return fragmentView;
     }
