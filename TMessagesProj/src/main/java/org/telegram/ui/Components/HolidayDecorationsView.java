@@ -6,6 +6,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.SystemClock;
+import android.media.AudioManager;
+import android.media.ToneGenerator;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -80,15 +82,33 @@ public final class HolidayDecorationsView extends View {
         }
     }
 
+    private int touchedBulb(float x, float y) {
+        if (getWidth() <= 0) return -1;
+        float density = getResources().getDisplayMetrics().density;
+        float spacing = getWidth() / (bulbs.length + 1f);
+        float baseY = 19f * density;
+        for (int i = 0; i < bulbs.length; i++) {
+            float cx = (i + 1) * spacing;
+            float cy = baseY + 12f * density * (1f - Math.abs(2f * cx / getWidth() - 1f));
+            float dx = x - cx;
+            float dy = y - cy;
+            float hitRadius = 16f * density;
+            if (dx * dx + dy * dy <= hitRadius * hitRadius) return i;
+        }
+        return -1;
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (event.getActionMasked() != MotionEvent.ACTION_UP) {
-            return event.getActionMasked() == MotionEvent.ACTION_DOWN && event.getY() < 65 * getResources().getDisplayMetrics().density;
+        int action = event.getActionMasked();
+        if (action == MotionEvent.ACTION_DOWN) {
+            // Do not block Telegram's search, menu, or navigation controls.
+            return touchedBulb(event.getX(), event.getY()) >= 0;
         }
-        float density = getResources().getDisplayMetrics().density;
-        if (event.getY() > 65f * density || getWidth() <= 0) return false;
-        int index = Math.round(event.getX() / (getWidth() / (bulbs.length + 1f))) - 1;
-        if (index < 0 || index >= bulbs.length) return false;
+        if (action == MotionEvent.ACTION_CANCEL) return false;
+        if (action != MotionEvent.ACTION_UP) return true;
+        int index = touchedBulb(event.getX(), event.getY());
+        if (index < 0) return false;
         int outcome = random.nextInt(3);
         if (outcome == 0) bulbs[index] = random.nextInt(colors.length);
         else if (outcome == 1) {
@@ -103,7 +123,19 @@ public final class HolidayDecorationsView extends View {
     }
 
     private void playBell() {
-        // No sound assets or audio focus changes until the app integration is tested.
-        // This deliberately remains silent even when opted in.
+        // Opt-in, brief system tone; no external media assets or permissions.
+        ToneGenerator tone = null;
+        try {
+            tone = new ToneGenerator(AudioManager.STREAM_NOTIFICATION, 35);
+            tone.startTone(ToneGenerator.TONE_PROP_BEEP, 90);
+        } catch (RuntimeException ignored) {
+            // Sound must never crash the dialogs screen.
+        } finally {
+            if (tone != null) {
+                final ToneGenerator releaseTone = tone;
+                postDelayed(releaseTone::release, 160);
+            }
+        }
     }
+
 }
