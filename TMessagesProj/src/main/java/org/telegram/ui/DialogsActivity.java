@@ -5650,6 +5650,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             org.telegram.ui.Components.HolidaySnowView snow =
                     new org.telegram.ui.Components.HolidaySnowView(context);
             snow.setClickable(false);
+            snow.setSnowEnabled(true);
             contentView.addView(snow, LayoutHelper.createFrameMatchParent());
             org.telegram.ui.Components.HolidayDecorationsView garland =
                     new org.telegram.ui.Components.HolidayDecorationsView(context);
