@@ -1,0 +1,35 @@
+name: New Year 2027 test APK
+on:
+  push:
+    branches: [new-year-2027]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-java@v4
+        with:
+          distribution: corretto
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.14.5'
+      - name: Install Android native tools
+        run: |
+          yes | sdkmanager "cmake;3.22.1" "ndk;27.2.12479018" || true
+          printf 'sdk.dir=%s\ncmake.dir=%s\n' "$ANDROID_HOME" "$ANDROID_HOME/cmake/3.22.1" > local.properties
+      - name: Build test APK
+        run: gradle :TMessagesProj_AppStandalone:assembleStandalone --stacktrace
+      - name: Upload test APK
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: new-year-2027-test-apk
+          path: TMessagesProj_AppStandalone/build/outputs/apk/**/*.apk
+          if-no-files-found: error
