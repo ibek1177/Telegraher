@@ -494,6 +494,24 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
         updateColors();
         checkUi_menuItems();
 
+        // Temporary opt-in entry for the experimental 2027 holiday overlay.
+        // This is intentionally independent of Ghost Mode privacy switches.
+        final android.widget.TextView holidayToggle = new android.widget.TextView(context);
+        holidayToggle.setText("🎄");
+        holidayToggle.setTextSize(24);
+        holidayToggle.setGravity(Gravity.CENTER);
+        holidayToggle.setContentDescription("Toggle New Year decorations");
+        holidayToggle.setBackgroundColor(0x22336688);
+        holidayToggle.setOnClickListener(v -> {
+            final SharedPreferences prefs = context.getSharedPreferences("holiday_2027", Context.MODE_PRIVATE);
+            final boolean enabled = !prefs.getBoolean("decorations_enabled", false);
+            prefs.edit().putBoolean("decorations_enabled", enabled).apply();
+            Toast.makeText(context, enabled ? "New Year decorations ON — reopen chats" :
+                    "New Year decorations OFF — reopen chats", Toast.LENGTH_SHORT).show();
+        });
+        contentView.addView(holidayToggle,
+                LayoutHelper.createFrame(48, 48, Gravity.RIGHT | Gravity.BOTTOM, 0, 0, 12, 80));
+
         ViewCompat.setOnApplyWindowInsetsListener(contentView, this::onApplyWindowInsets);
         return fragmentView = contentView;
     }
