@@ -503,7 +503,7 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
         holidayToggle.setBackgroundColor(0x22336688);
         holidayToggle.setOnClickListener(v -> {
             final SharedPreferences prefs = context.getSharedPreferences("holiday_2027", Context.MODE_PRIVATE);
-            final String[] options = {"❄️ Снег, вихрь и гирлянда", "🔔 Звук лампочек"};
+            final String[] options = {"❄️ Снег, вихрь и гирлянда", "🔔 Колокольчик при смене папок"};
             final boolean[] selected = {
                     prefs.getBoolean("decorations_enabled", false),
                     prefs.getBoolean("sound_enabled", false)
@@ -511,7 +511,10 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
             new android.app.AlertDialog.Builder(context)
                     .setTitle("🎄 Новогоднее оформление 2027")
                     .setMultiChoiceItems(options, selected, (dialog, which, checked) ->
-                            prefs.edit().putBoolean(which == 0 ? "decorations_enabled" : "sound_enabled", checked).apply())
+                            {
+                        prefs.edit().putBoolean(which == 0 ? "decorations_enabled" : "sound_enabled", checked).apply();
+                        if (which == 1 && checked) org.telegram.ui.Components.HolidayFolderSound.preview(context);
+                    })
                     .setPositiveButton("Готово", (dialog, which) ->
                             Toast.makeText(context, "Перезапустите приложение для обновления украшений", Toast.LENGTH_LONG).show())
                     .show();
