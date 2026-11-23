@@ -3667,6 +3667,13 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                         checkListLoad(viewPages[0]);
                         viewPages[0].dialogsAdapter.resume();
                         viewPages[1].dialogsAdapter.pause();
+                        // Play a subtle seasonal chime only after a real folder transition.
+                        if (context.getSharedPreferences("holiday_2027", Context.MODE_PRIVATE)
+                                .getBoolean("decorations_enabled", false)
+                                && context.getSharedPreferences("holiday_2027", Context.MODE_PRIVATE)
+                                .getBoolean("sound_enabled", false)) {
+                            org.telegram.ui.Components.HolidayFolderSound.play(context);
+                        }
                     }
                 }
 
