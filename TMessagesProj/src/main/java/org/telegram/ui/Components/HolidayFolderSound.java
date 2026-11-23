@@ -14,8 +14,16 @@ public final class HolidayFolderSound {
     private HolidayFolderSound() {}
 
     public static void play(Context context) {
+        playInternal(context, false);
+    }
+
+    public static void preview(Context context) {
+        playInternal(context, true);
+    }
+
+    private static void playInternal(Context context, boolean preview) {
         final long now = SystemClock.uptimeMillis();
-        if (now - lastPlayed < 400L) return;
+        if (!preview && now - lastPlayed < 400L) return;
         AudioManager manager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         if (manager == null || manager.getRingerMode() != AudioManager.RINGER_MODE_NORMAL
                 || manager.getStreamVolume(AudioManager.STREAM_MUSIC) == 0) return;
@@ -33,12 +41,12 @@ public final class HolidayFolderSound {
                     double shimmer = Math.sin(2 * Math.PI * 1318.51 * t) * 0.60
                             + Math.sin(2 * Math.PI * 2637.02 * t) * 0.25
                             + Math.sin(2 * Math.PI * 3955.53 * t) * 0.15;
-                    pcm[i] = (short)(Math.max(-1, Math.min(1, shimmer * envelope * 0.23)) * 32767);
+                    pcm[i] = (short)(Math.max(-1, Math.min(1, shimmer * envelope * 0.65)) * 32767);
                 }
                 track = new AudioTrack.Builder()
                         .setAudioAttributes(new AudioAttributes.Builder()
-                                .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
-                                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build())
+                                .setUsage(AudioAttributes.USAGE_MEDIA)
+                                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build())
                         .setAudioFormat(new AudioFormat.Builder()
                                 .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
                                 .setSampleRate(SAMPLE_RATE)
@@ -47,7 +55,8 @@ public final class HolidayFolderSound {
                         .setTransferMode(AudioTrack.MODE_STATIC)
                         .build();
                 if (track.getState() != AudioTrack.STATE_INITIALIZED) return;
-                track.write(pcm, 0, pcm.length);
+                int written = track.write(pcm, 0, pcm.length);
+                if (written <= 0) return;
                 track.play();
                 Thread.sleep(500);
             } catch (Exception ignored) {
