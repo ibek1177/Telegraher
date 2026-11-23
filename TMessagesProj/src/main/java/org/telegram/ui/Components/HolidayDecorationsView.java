@@ -48,6 +48,7 @@ public final class HolidayDecorationsView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        if (getWidth() <= 0) return;
         float density = getResources().getDisplayMetrics().density;
         float spacing = getWidth() / (bulbs.length + 1f);
         float baseY = 19f * density;
@@ -62,7 +63,11 @@ public final class HolidayDecorationsView extends View {
         for (int i = 0; i < bulbs.length; i++) {
             float cx = (i + 1) * spacing;
             float cy = baseY + 12f * density * (1f - Math.abs(2f * cx / getWidth() - 1f));
-            paint.setColor(colors[bulbs[i]]);
+            int color = colors[bulbs[i]];
+            float pulse = 0.65f + 0.35f * (float)Math.sin(SystemClock.uptimeMillis() * 0.002 + i * 1.7);
+            paint.setColor((color & 0x00ffffff) | (((int)(40 + pulse * 35)) << 24));
+            canvas.drawCircle(cx, cy, (10f + pulse * 3f) * density, paint);
+            paint.setColor(color);
             canvas.drawCircle(cx, cy, 5.5f * density, paint);
         }
         if (surprise >= 0 && SystemClock.uptimeMillis() < surpriseUntil) {
@@ -80,6 +85,7 @@ public final class HolidayDecorationsView extends View {
         } else {
             surprise = -1;
         }
+        if (isAttachedToWindow() && getVisibility() == VISIBLE) postInvalidateDelayed(80L);
     }
 
     private int touchedBulb(float x, float y) {
